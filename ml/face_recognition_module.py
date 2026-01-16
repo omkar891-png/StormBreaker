@@ -123,6 +123,50 @@ class FaceRecognitionModule:
                 "match": False
             }
             
+    def identify_student(self, img_path: str) -> Dict:
+        """
+        Identifies a student from the image by comparing with all registered embeddings.
+        Returns the best match if it meets the threshold.
+        """
+        try:
+            captured_embedding = self.generate_embedding(img_path)
+            
+            best_match_id = None
+            best_distance = float("inf")
+            
+            for student_id, data in self.embeddings.items():
+                stored_embedding = data["embedding"]
+                distance = self._calculate_distance(stored_embedding, captured_embedding)
+                
+                if distance < best_distance:
+                    best_distance = distance
+                    best_match_id = student_id
+            
+            match = best_distance <= self.threshold
+            
+            confidence = 0.0
+            if match:
+                 confidence = (1 - (best_distance / self.threshold)) * 100
+                 confidence = max(0, min(100, confidence))
+            
+            reason = "Face matched" if match else "Face not recognized"
+            
+            return {
+                "status": "success",
+                "matched": bool(match),
+                "confidence": round(confidence, 2),
+                "distance": float(best_distance) if best_distance != float("inf") else 0.0,
+                "student_id": best_match_id if match else None,
+                "reason": reason
+            }
+            
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": str(e),
+                "matched": False
+            }
+
     def _calculate_distance(self, embedding1, embedding2):
         if self.distance_metric == 'cosine':
             a = np.array(embedding1)

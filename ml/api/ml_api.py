@@ -61,13 +61,15 @@ async def register_student(
 
 @app.post("/verify")
 async def verify_attendance(
-    student_id: str = Form(...),
+    student_id: Optional[str] = Form(None),
     file: UploadFile = File(...)
 ):
     """
-    Verify attendance by comparing uploaded face image matches the registered student_id.
+    Verify attendance. 
+    If student_id is provided, performs 1:1 verification.
+    If student_id is NOT provided, performs 1:N identification (finds best match).
     """
-    temp_file_path = os.path.join(TEMP_DIR, f"verify_{student_id}_{file.filename}")
+    temp_file_path = os.path.join(TEMP_DIR, f"verify_{file.filename}")
     
     try:
         # Save uploaded file
@@ -75,13 +77,15 @@ async def verify_attendance(
             shutil.copyfileobj(file.file, buffer)
             
         # Call ML module
-        result = ml_module.verify_student(student_id, temp_file_path)
+        if student_id:
+            result = ml_module.verify_student(student_id, temp_file_path)
+            # Map verify_student result keys to expectations if needed, or rely on client to handle
+            result["matched"] = result.get("match", False)
+            result["confidence"] = result.get("confidence_score", 0.0)
+        else:
+            result = ml_module.identify_student(temp_file_path)
         
         if result.get("status") == "error":
-            # If student not found or other logical error, we might still want to return 200 with error status 
-            # or 400. Let's stick to returning the JSON as is, maybe with 200 OK because the *check* was successful, 
-            # even if the outcome was 'error' (like student not found).
-            # However, for API consistency:
             if "not found" in result.get("message", "").lower():
                 return JSONResponse(status_code=404, content=result)
             return JSONResponse(status_code=400, content=result)
