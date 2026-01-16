@@ -31,6 +31,14 @@ const MOCK_STUDENTS = [
 ]
 
 export default function LiveLecturePage() {
+    return (
+        <React.Suspense fallback={<div className="p-6 text-center">Loading session...</div>}>
+            <LiveLectureContent />
+        </React.Suspense>
+    )
+}
+
+function LiveLectureContent() {
     const searchParams = useSearchParams()
     const router = useRouter()
 

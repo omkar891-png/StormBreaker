@@ -1,11 +1,117 @@
 "use client"
 
+import { useState, useEffect, useMemo } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
 import { Button } from "../../../components/ui/button"
-import { Users, GraduationCap, Calendar, AlertTriangle, TrendingUp, Clock, Plus, Download } from "lucide-react"
+import { Users, GraduationCap, Calendar, AlertTriangle, TrendingUp, Clock, Plus, Download, RefreshCw } from "lucide-react"
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+
+interface DashboardStats {
+    total_students: number
+    total_teachers: number
+    total_exams: number
+    total_notifications: number
+    present_today: number
+    absent_today: number
+}
+
+interface AttendanceRecord {
+    id: number
+    student_id: number
+    timestamp: string
+    status: string
+    subject: string
+    student?: {
+        full_name: string
+        roll_number: string
+    }
+}
+
+interface Defaulter {
+    student_id: number
+    name: string
+    roll_number: string
+    attendance_count: number
+}
+
+interface HistoryData {
+    date: string
+    count: number
+}
 
 export default function AdminDashboardPage() {
+    const [stats, setStats] = useState<DashboardStats | null>(null)
+    const [recentAttendance, setRecentAttendance] = useState<AttendanceRecord[]>([])
+    const [defaulters, setDefaulters] = useState<Defaulter[]>([])
+    const [history, setHistory] = useState<HistoryData[]>([])
+    const [loading, setLoading] = useState(true)
+
+    const fetchData = async () => {
+        setLoading(true)
+        const token = localStorage.getItem("token")
+        if (!token) return
+
+        try {
+            const headers = {
+                'Authorization': `Bearer ${token}`
+            }
+
+            // Fetch Stats
+            const statsRes = await fetch('/api/reports/dashboard-stats', { headers })
+            if (statsRes.ok) {
+                const statsData = await statsRes.json()
+                setStats(statsData)
+            }
+
+            // Fetch Recent Attendance
+            const attendanceRes = await fetch('/api/attendance/?limit=5', { headers })
+            if (attendanceRes.ok) {
+                const attendanceData = await attendanceRes.json()
+                setRecentAttendance(attendanceData)
+            }
+
+            // Fetch Defaulters
+            const defaultersRes = await fetch('/api/reports/defaulters', { headers })
+            if (defaultersRes.ok) {
+                const defaultersData = await defaultersRes.json()
+                setDefaulters(defaultersData)
+            }
+
+            // Fetch Attendance History
+            const historyRes = await fetch('/api/reports/attendance-history', { headers })
+            if (historyRes.ok) {
+                const historyData = await historyRes.json()
+                setHistory(historyData)
+            }
+
+        } catch (error) {
+            console.error("Error fetching dashboard data:", error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchData()
+    }, [])
+
+    const chartData = useMemo(() => {
+        if (!history || history.length === 0) {
+            return [
+                { date: 'Mon', count: 0 },
+                { date: 'Tue', count: 0 },
+                { date: 'Wed', count: 0 },
+                { date: 'Thu', count: 0 },
+                { date: 'Fri', count: 0 },
+            ]
+        }
+        return history.map(h => ({
+            date: new Date(h.date).toLocaleDateString('en-US', { weekday: 'short' }),
+            count: h.count
+        }))
+    }, [history])
+
     return (
         <main className="p-8 space-y-8 animate-fade-in">
             <div className="flex items-center justify-between">
@@ -14,6 +120,9 @@ export default function AdminDashboardPage() {
                     <p className="text-muted-foreground">Welcome back, Admin. Here's what's happening today.</p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <Button variant="outline" size="icon" onClick={fetchData} disabled={loading} className="rounded-full">
+                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    </Button>
                     <Button variant="outline" className="gap-2 border-primary/20 bg-primary/5 hover:bg-primary/10">
                         <Download className="h-4 w-4" /> Export Report
                     </Button>
@@ -31,8 +140,8 @@ export default function AdminDashboardPage() {
                         <Users className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">2,543</div>
-                        <p className="text-xs text-muted-foreground">+180 from last month</p>
+                        <div className="text-2xl font-bold">{loading ? "..." : stats?.total_students || 0}</div>
+                        <p className="text-xs text-muted-foreground">Registered in system</p>
                     </CardContent>
                 </Card>
                 <Card className="glass-dark border-primary/20 hover:border-primary/50 transition-colors group">
@@ -41,18 +150,18 @@ export default function AdminDashboardPage() {
                         <GraduationCap className="h-4 w-4 text-muted-foreground group-hover:text-accent transition-colors" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">128</div>
-                        <p className="text-xs text-muted-foreground">+4 new hires</p>
+                        <div className="text-2xl font-bold">{loading ? "..." : stats?.total_teachers || 0}</div>
+                        <p className="text-xs text-muted-foreground">Active faculty members</p>
                     </CardContent>
                 </Card>
                 <Card className="glass-dark border-primary/20 hover:border-primary/50 transition-colors group">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Avg. Attendance</CardTitle>
+                        <CardTitle className="text-sm font-medium">Present Today</CardTitle>
                         <TrendingUp className="h-4 w-4 text-muted-foreground group-hover:text-green-400 transition-colors" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-green-400">88.2%</div>
-                        <p className="text-xs text-muted-foreground">+2.1% this week</p>
+                        <div className="text-2xl font-bold text-green-400">{loading ? "..." : stats?.present_today || 0}</div>
+                        <p className="text-xs text-muted-foreground">Students marked today</p>
                     </CardContent>
                 </Card>
                 <Card className="glass-dark border-primary/20 hover:border-primary/50 transition-colors group">
@@ -61,8 +170,8 @@ export default function AdminDashboardPage() {
                         <AlertTriangle className="h-4 w-4 text-muted-foreground group-hover:text-red-400 transition-colors" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-red-400">43</div>
-                        <p className="text-xs text-muted-foreground">Below 75% threshold</p>
+                        <div className="text-2xl font-bold text-red-400">{loading ? "..." : defaulters.length}</div>
+                        <p className="text-xs text-muted-foreground">Below attendance threshold</p>
                     </CardContent>
                 </Card>
             </div>
@@ -77,14 +186,41 @@ export default function AdminDashboardPage() {
                             <CardTitle>Attendance Analytics</CardTitle>
                             <CardDescription>Daily attendance trends across all departments</CardDescription>
                         </CardHeader>
-                        <CardContent className="h-full flex items-center justify-center text-muted-foreground">
-                            {/* Placeholder for Recharts or similar */}
-                            <div className="w-full h-[300px] bg-white/5 rounded-lg flex items-center justify-center border border-white/5 border-dashed">
-                                <div className="text-center">
-                                    <TrendingUp className="h-10 w-10 mx-auto mb-2 opacity-50" />
-                                    <p>Attendance Graph Visuals</p>
-                                </div>
-                            </div>
+                        <CardContent className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={chartData}>
+                                    <defs>
+                                        <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.1)" />
+                                    <XAxis
+                                        dataKey="date"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
+                                    />
+                                    <YAxis
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#1e1b4b', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '8px' }}
+                                        itemStyle={{ color: '#818cf8' }}
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="count"
+                                        stroke="#6366f1"
+                                        fillOpacity={1}
+                                        fill="url(#colorCount)"
+                                        strokeWidth={3}
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
                         </CardContent>
                     </Card>
 
@@ -102,33 +238,33 @@ export default function AdminDashboardPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                {[
-                                    { class: "CS-A", subject: "Data Structures", teacher: "Prof. Alan Turing", time: "10:00 - 11:00 AM", status: "Ongoing", room: "Lab 3" },
-                                    { class: "CS-B", subject: "Web Dev", teacher: "Prof. Tim Berners-Lee", time: "10:00 - 11:00 AM", status: "Ongoing", room: "Room 101" },
-                                    { class: "ME-A", subject: "Thermodynamics", teacher: "Prof. S. Carnot", time: "10:00 - 11:00 AM", status: "Late Start", room: "Room 204" },
-                                    { class: "EE-A", subject: "Circuits", teacher: "Prof. N. Tesla", time: "11:00 - 12:00 PM", status: "Scheduled", room: "Lab 1" },
-                                ].map((lecture, i) => (
-                                    <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-background/40 border border-white/5 hover:border-primary/20 transition-all">
-                                        <div className="flex items-start gap-3">
-                                            <div className="p-2 rounded bg-primary/10 text-primary mt-1">
-                                                <Clock className="h-4 w-4" />
+                                {recentAttendance.length > 0 ? (
+                                    recentAttendance.map((record, i) => (
+                                        <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-background/40 border border-white/5 hover:border-primary/20 transition-all">
+                                            <div className="flex items-start gap-3">
+                                                <div className="p-2 rounded bg-primary/10 text-primary mt-1">
+                                                    <Clock className="h-4 w-4" />
+                                                </div>
+                                                <div>
+                                                    <div className="font-medium">{record.subject}</div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        {record.student?.full_name || `Student ID: ${record.student_id}`} ({record.student?.roll_number || 'N/A'}) • <span className="text-primary">{new Date(record.timestamp).toLocaleTimeString()}</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <div className="font-medium">{lecture.subject}</div>
-                                                <div className="text-xs text-muted-foreground">{lecture.teacher} • <span className="text-primary">{lecture.class}</span></div>
+                                            <div className="text-right">
+                                                <div className={`text-xs font-bold px-2 py-0.5 rounded inline-block mb-1 bg-green-500/20 text-green-400`}>
+                                                    {record.status}
+                                                </div>
+                                                <div className="text-xs text-muted-foreground">{new Date(record.timestamp).toLocaleDateString()}</div>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <div className={`text-xs font-bold px-2 py-0.5 rounded inline-block mb-1 ${lecture.status === 'Ongoing' ? 'bg-green-500/20 text-green-400' :
-                                                lecture.status === 'Late Start' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                    'bg-blue-500/20 text-blue-400'
-                                                }`}>
-                                                {lecture.status}
-                                            </div>
-                                            <div className="text-xs text-muted-foreground">{lecture.room}</div>
-                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center py-8 text-muted-foreground">
+                                        No recent attendance records found.
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </CardContent>
                     </Card>
@@ -166,29 +302,23 @@ export default function AdminDashboardPage() {
                     {/* Recent Activity / Logs */}
                     <Card className="glass-dark border-primary/20 font-mono text-sm max-h-[400px] overflow-hidden">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">System Logs</CardTitle>
+                            <CardTitle className="text-sm font-medium text-muted-foreground">Defaulters List</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-3 relative">
-                                {/* Simple timeline line */}
-                                <div className="absolute left-1.5 top-2 bottom-0 w-px bg-white/10"></div>
-
-                                {[
-                                    { time: "10:42 AM", msg: "Attendance marked for CS-A", type: "success" },
-                                    { time: "10:30 AM", msg: "New student registered: Alex D.", type: "info" },
-                                    { time: "09:15 AM", msg: "System backup completed", type: "system" },
-                                    { time: "09:00 AM", msg: "Server Restarted", type: "system" },
-                                ].map((log, i) => (
-                                    <div key={i} className="flex gap-3 relative">
-                                        <div className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 z-10 ${log.type === 'success' ? 'bg-green-400' :
-                                            log.type === 'info' ? 'bg-blue-400' : 'bg-gray-400'
-                                            }`}></div>
-                                        <div>
-                                            <p className="text-xs opacity-70 mb-0.5">{log.time}</p>
-                                            <p className="text-xs font-medium">{log.msg}</p>
+                                {defaulters.length > 0 ? (
+                                    defaulters.map((defaulter, i) => (
+                                        <div key={i} className="flex gap-3 relative">
+                                            <div className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 z-10 bg-red-400`}></div>
+                                            <div>
+                                                <p className="text-xs font-medium">{defaulter.name} ({defaulter.roll_number})</p>
+                                                <p className="text-xs opacity-70">Attendance: {defaulter.attendance_count}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))
+                                ) : (
+                                    <div className="text-xs text-muted-foreground italic">No defaulters found below threshold.</div>
+                                )}
                             </div>
                         </CardContent>
                     </Card>

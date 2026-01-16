@@ -25,16 +25,49 @@ export default function FaceVerificationPage() {
         setStatus("idle")
     }
 
-    const handleVerify = () => {
+    const [error, setError] = React.useState("")
+
+    const handleVerify = async () => {
+        if (!imgSrc) return;
+
         setStatus("verifying")
-        // Simulate API call
-        setTimeout(() => {
+        setError("")
+
+        try {
+            // Convert base64 to blob
+            const fetchRes = await fetch(imgSrc);
+            const blob = await fetchRes.blob();
+
+            const formData = new FormData();
+            formData.append("file", blob, "capture.jpg");
+            formData.append("subject", "Data Structures"); // Hardcoded for demo matching dashboard
+
+            const token = localStorage.getItem("token");
+
+            const response = await fetch("http://127.0.0.1:8000/attendance/mark", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || "Verification failed");
+            }
+
             setStatus("success")
             // Redirect back to dashboard after a delay
             setTimeout(() => {
-                router.push("/student/attendance/id-card")
+                router.push("/student/dashboard?verified=true")
             }, 2000)
-        }, 2000)
+
+        } catch (err: any) {
+            console.error(err)
+            setStatus("error")
+            setError(err.message)
+        }
     }
 
     const videoConstraints = {
@@ -115,6 +148,16 @@ export default function FaceVerificationPage() {
                                     <Button disabled size="lg" className="w-full bg-indigo-600/50">
                                         Processing...
                                     </Button>
+                                )}
+                                {status === 'error' && (
+                                    <div className="w-full flex flex-col gap-2">
+                                        <div className="bg-destructive/20 text-destructive p-3 rounded-lg text-center text-sm border border-destructive/50">
+                                            {error}
+                                        </div>
+                                        <Button variant="outline" size="lg" className="w-full border-white/10 hover:bg-white/5" onClick={handleRetake}>
+                                            <RotateCcw className="mr-2 h-4 w-4" /> Try Again
+                                        </Button>
+                                    </div>
                                 )}
                             </>
                         )}

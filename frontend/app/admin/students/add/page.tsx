@@ -1,234 +1,155 @@
 "use client"
 
-import * as React from "react"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import { ArrowLeft, CheckCircle, FileSpreadsheet, Upload, AlertCircle } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Upload, AlertCircle, CheckCircle, FileSpreadsheet } from "lucide-react"
 
-// Types
-interface StudentPreview {
-    name: string
-    email: string
-    password: string // In reality you might hash this later or generate it
-    id: string
-}
+export default function BatchUploadPage() {
+    const [isLoading, setIsLoading] = useState(false)
+    const [stats, setStats] = useState<any>(null)
+    const [dept, setDept] = useState("CS")
+    const [year, setYear] = useState("SY")
 
-export default function AddStudentPage() {
-    const router = useRouter()
-    const [department, setDepartment] = useState("")
-    const [year, setYear] = useState("")
-    const [file, setFile] = useState<File | null>(null)
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return
 
-    const [isProcessing, setIsProcessing] = useState(false)
-    const [previewData, setPreviewData] = useState<StudentPreview[]>([])
+        const file = e.target.files[0]
+        const formData = new FormData()
+        formData.append("file", file)
+        formData.append("department", dept)
+        formData.append("year", year)
 
-    // Basic CSV Parsing
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = e.target.files?.[0]
-        if (selectedFile) {
-            setFile(selectedFile)
-            setIsProcessing(true)
+        setIsLoading(true)
+        setStats(null)
 
-            const reader = new FileReader()
-            reader.onload = (event) => {
-                try {
-                    const text = event.target?.result as string
-                    const lines = text.split('\n')
-                    const parsedData: StudentPreview[] = []
+        try {
+            const token = localStorage.getItem("token")
+            const res = await fetch("http://127.0.0.1:8000/students/batch-upload", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+                body: formData
+            })
 
-                    // Start from index 1 to skip header
-                    for (let i = 1; i < lines.length; i++) {
-                        const line = lines[i].trim()
-                        if (!line) continue
-
-                        // Simple CSV split (doesn't handle quoted commas)
-                        const cols = line.split(',')
-                        if (cols.length >= 3) {
-                            parsedData.push({
-                                name: cols[0].trim(),
-                                email: cols[1].trim(),
-                                id: cols[2].trim(),
-                                password: `pass_${Math.random().toString(36).slice(-6)}`
-                            })
-                        }
-                    }
-                    setPreviewData(parsedData)
-                } catch (err) {
-                    console.error("Error parsing CSV", err)
-                    alert("Failed to parse CSV file. Ensure format: Name,Email,ID")
-                } finally {
-                    setIsProcessing(false)
-                }
+            const data = await res.json()
+            if (!res.ok) {
+                throw new Error(data.detail || "Upload failed")
             }
-            reader.readAsText(selectedFile)
+            setStats(data)
+
+        } catch (err: any) {
+            setStats({ error: err.message })
+        } finally {
+            setIsLoading(false)
         }
     }
 
-    const handleSave = () => {
-        // In a real app, send data to backend here
-        alert(`Successfully registered ${previewData.length} students to ${department} - ${year}`)
-        router.push("/admin/students") // Redirect to students list
-    }
-
     return (
-        <main className="p-8 space-y-8 animate-fade-in max-w-5xl mx-auto">
-            <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                    <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Add New Students</h1>
-                    <p className="text-muted-foreground">Bulk register students department-wise.</p>
-                </div>
+        <main className="p-8 space-y-8 animate-fade-in">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight">Batch Student Upload</h1>
+                <p className="text-muted-foreground">Upload an Excel file to add multiple students at once.</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                {/* Left Column: Configuration Form */}
-                <div className="lg:col-span-1 space-y-6">
-                    <Card className="glass-dark border-primary/20">
-                        <CardHeader>
-                            <CardTitle>Class Configuration</CardTitle>
-                            <CardDescription>Select target class params.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+            <div className="grid gap-8 md:grid-cols-2">
+                <Card className="glass-dark border-primary/20">
+                    <CardHeader>
+                        <CardTitle>Upload Configuration</CardTitle>
+                        <CardDescription>Select target class and file</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Department</Label>
-                                <Select onValueChange={setDepartment} value={department}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select Dept" />
-                                    </SelectTrigger>
+                                <Select defaultValue={dept} onValueChange={setDept}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Computer Science">Computer Science</SelectItem>
-                                        <SelectItem value="Data Science">Data Science</SelectItem>
-                                        <SelectItem value="IT">Information Technology</SelectItem>
-                                        <SelectItem value="AI/ML">AI & Machine Learning</SelectItem>
-                                        <SelectItem value="Mechanical">Mechanical</SelectItem>
-                                        <SelectItem value="Civil">Civil</SelectItem>
+                                        <SelectItem value="CS">Computer Science</SelectItem>
+                                        <SelectItem value="IT">Info Tech</SelectItem>
+                                        <SelectItem value="ME">Mechanical</SelectItem>
+                                        <SelectItem value="EE">Electrical</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
-
                             <div className="space-y-2">
-                                <Label>Academic Year</Label>
-                                <Select onValueChange={setYear} value={year}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select Year" />
-                                    </SelectTrigger>
+                                <Label>Year</Label>
+                                <Select defaultValue={year} onValueChange={setYear}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="First Year">First Year</SelectItem>
-                                        <SelectItem value="DSE">Direct Second Year (DSE)</SelectItem>
-                                        <SelectItem value="Second Year">Second Year</SelectItem>
-                                        <SelectItem value="Third Year">Third Year</SelectItem>
-                                        <SelectItem value="Final Year">Final Year</SelectItem>
+                                        <SelectItem value="FY">First Year</SelectItem>
+                                        <SelectItem value="SY">Second Year</SelectItem>
+                                        <SelectItem value="TY">Third Year</SelectItem>
+                                        <SelectItem value="Final">Final Year</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
 
-                    <Card className="glass-dark border-primary/20">
+                        <div className="border-2 border-dashed border-white/10 rounded-lg p-8 flex flex-col items-center justify-center text-center hover:bg-white/5 transition-colors relative">
+                            <input
+                                type="file"
+                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                accept=".xlsx, .xls, .csv"
+                                onChange={handleFileUpload}
+                                disabled={isLoading}
+                            />
+                            <FileSpreadsheet className="h-10 w-10 text-primary mb-2" />
+                            <p className="text-sm font-medium">Click or Drag Excel File Here</p>
+                            <p className="text-xs text-muted-foreground mt-1">.xlsx, .csv supported</p>
+                            <p className="text-xs text-muted-foreground mt-2">Required Columns: Name, Email id, Password, Roll no</p>
+                        </div>
+
+                        {isLoading && <p className="text-center text-sm animate-pulse text-primary">Processing...</p>}
+                    </CardContent>
+                </Card>
+
+                {stats && (
+                    <Card className={`glass-dark border-primary/20 ${stats.error ? 'border-red-500/50' : 'border-green-500/50'}`}>
                         <CardHeader>
-                            <CardTitle>Upload Data</CardTitle>
-                            <CardDescription>CSV or Excel file with headers: Name, Email, ID.</CardDescription>
+                            <CardTitle>Upload Results</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="border-2 border-dashed border-primary/20 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-primary/5 transition-colors cursor-pointer group relative">
-                                <input
-                                    type="file"
-                                    className="absolute inset-0 opacity-0 cursor-pointer"
-                                    accept=".csv, .xlsx, .xls"
-                                    onChange={handleFileChange}
-                                />
-                                <div className="p-3 bg-primary/10 rounded-full mb-3 group-hover:scale-110 transition-transform">
-                                    <Upload className="h-6 w-6 text-primary" />
-                                </div>
-                                <p className="text-sm font-medium">{file ? file.name : "Click to Upload File"}</p>
-                                <p className="text-xs text-muted-foreground mt-1">.csv, .xlsx supported</p>
-                            </div>
-
-                            <Button variant="outline" className="w-full gap-2" asChild>
-                                <a href="#">
-                                    <FileSpreadsheet className="h-4 w-4" />
-                                    Download Template
-                                </a>
-                            </Button>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Right Column: Preview & Action */}
-                <div className="lg:col-span-2">
-                    <Card className="glass-dark border-primary/20 h-full flex flex-col">
-                        <CardHeader>
-                            <CardTitle className="flex items-center justify-between">
-                                <span>Student List Preview</span>
-                                <span className="text-sm font-normal text-muted-foreground">
-                                    {previewData.length > 0 ? `${previewData.length} records found` : "No data uploaded"}
-                                </span>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex-1 overflow-hidden flex flex-col">
-                            {previewData.length > 0 ? (
-                                <div className="flex-1 overflow-y-auto custom-scrollbar border rounded-md border-white/10">
-                                    <table className="w-full text-sm text-left">
-                                        <thead className="bg-white/5 text-muted-foreground sticky top-0">
-                                            <tr>
-                                                <th className="p-3 font-medium">Student Name</th>
-                                                <th className="p-3 font-medium">Student ID</th>
-                                                <th className="p-3 font-medium">User Login ID</th>
-                                                <th className="p-3 font-medium">Generated Password</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-white/5">
-                                            {previewData.map((student, idx) => (
-                                                <tr key={idx} className="hover:bg-white/5 transition-colors">
-                                                    <td className="p-3">{student.name}</td>
-                                                    <td className="p-3 font-mono text-xs">{student.id}</td>
-                                                    <td className="p-3">{student.email}</td>
-                                                    <td className="p-3 font-mono text-xs text-muted-foreground">{student.password}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                            {stats.error ? (
+                                <div className="flex items-center gap-2 text-red-400">
+                                    <AlertCircle className="h-5 w-5" />
+                                    <span>{stats.error}</span>
                                 </div>
                             ) : (
-                                <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8">
-                                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                                        <FileSpreadsheet className="h-8 w-8 opacity-20" />
+                                <>
+                                    <div className="flex items-center gap-2 text-green-400">
+                                        <CheckCircle className="h-5 w-5" />
+                                        <span>{stats.message}</span>
                                     </div>
-                                    <p>Upload a file to see the preview here</p>
-                                </div>
-                            )}
-
-                            {previewData.length > 0 && (
-                                <div className="pt-6 mt-auto border-t border-white/10">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2 text-sm text-yellow-500 bg-yellow-500/10 px-3 py-2 rounded-md">
-                                            <AlertCircle className="h-4 w-4" />
-                                            <span>Verify all details before confirming.</span>
+                                    <div className="p-4 bg-white/5 rounded-lg space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                            <span>Total Rows Processed:</span>
+                                            <span className="font-bold">{stats.total_rows}</span>
                                         </div>
-                                        <Button onClick={handleSave} size="lg" className="glow-primary-hover gap-2">
-                                            <CheckCircle className="h-4 w-4" />
-                                            Confirm & Add Students
-                                        </Button>
+                                        <div className="flex justify-between text-green-400">
+                                            <span>Successfully Added:</span>
+                                            <span className="font-bold">{stats.success_count}</span>
+                                        </div>
+                                        {stats.errors && stats.errors.length > 0 && (
+                                            <div className="mt-4 pt-4 border-t border-white/10">
+                                                <p className="font-bold text-red-400 mb-2">Errors:</p>
+                                                <ul className="list-disc pl-4 space-y-1 text-red-300/80 max-h-[200px] overflow-y-auto">
+                                                    {stats.errors.map((err: string, i: number) => (
+                                                        <li key={i}>{err}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
+                                </>
                             )}
                         </CardContent>
                     </Card>
-                </div>
+                )}
             </div>
         </main>
     )

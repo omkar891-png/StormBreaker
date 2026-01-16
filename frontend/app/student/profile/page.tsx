@@ -10,9 +10,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Camera, Download, Shield } from "lucide-react"
 
 export default function StudentProfilePage() {
-    // Mock Data
+    // Mock Data - replaced with partial real data fetch if needed
+    // For now, let's keep the mock data for display but implement the upload logic
     const [student, setStudent] = useState({
-        name: "Alex Doe",
+        name: "Alex Doe", // This should come from API /students/me
         studentId: "STU-2024-001",
         course: "Computer Science",
         year: "2nd Year",
@@ -20,20 +21,61 @@ export default function StudentProfilePage() {
         documentType: "National ID",
         documentNumber: "ABC-12345-XYZ",
         email: "alex.doe@university.edu",
-        password: "TempPassword123!", // Read-only
+        password: "TempPassword123!",
         profileImage: "/avatars/01.png"
     })
 
     const [isUploading, setIsUploading] = useState(false)
 
-    const handleImageUpload = () => {
-        // Simulate upload
+    // Hidden file input ref
+    const fileInputRef = useState<HTMLInputElement | null>(null)
+
+    const triggerUpload = () => {
+        document.getElementById('file-upload')?.click()
+    }
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return
+
+        const file = e.target.files[0]
         setIsUploading(true)
-        setTimeout(() => setIsUploading(false), 2000)
+
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+
+            const token = localStorage.getItem('token')
+            const res = await fetch('http://127.0.0.1:8000/students/upload-face', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            })
+
+            if (!res.ok) throw new Error('Upload failed')
+
+            alert("Face registered successfully!")
+            // Optionally refresh profile image here
+
+        } catch (err) {
+            console.error(err)
+            alert("Failed to upload face. Please try again.")
+        } finally {
+            setIsUploading(false)
+        }
     }
 
     return (
         <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
+            <input
+                type="file"
+                id="file-upload"
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageUpload}
+            />
+
             {/* Background Gradients */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-primary/20 blur-[120px] rounded-full pointer-events-none -z-10" />
             <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-accent/10 blur-[120px] rounded-full pointer-events-none -z-10" />
@@ -69,7 +111,7 @@ export default function StudentProfilePage() {
                                     <AvatarFallback>AD</AvatarFallback>
                                 </Avatar>
                                 <button
-                                    onClick={handleImageUpload}
+                                    onClick={triggerUpload}
                                     className="absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-transform hover:scale-105 active:scale-95"
                                     title="Upload new photo"
                                 >

@@ -2,7 +2,7 @@ import httpx
 from fastapi import UploadFile, HTTPException
 import logging
 
-ML_SERVICE_URL = "http://localhost:8001"
+ML_SERVICE_URL = "http://127.0.0.1:8001"
 
 logger = logging.getLogger(__name__)
 
@@ -25,24 +25,23 @@ class MLClient:
         files = {"file": (image_file.filename, file_content, image_file.content_type)}
         data = {"student_id": student_id}
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(trust_env=False) as client:
             try:
-                response = await client.post(url, files=files, data=data, timeout=10.0)
+                response = await client.post(url, files=files, data=data, timeout=60.0)
                 response.raise_for_status()
                 return response.json()
             except httpx.RequestError as exc:
-                logger.error(f"An error occurred while requesting {exc.request.url!r}.")
+                logger.error(f"An error occurred while requesting {exc.request.url!r}: {exc}")
                 raise HTTPException(status_code=503, detail=f"ML Service unavailable: {str(exc)}")
             except httpx.HTTPStatusError as exc:
                 logger.error(f"Error response {exc.response.status_code} while requesting {exc.request.url!r}.")
                 raise HTTPException(status_code=exc.response.status_code, detail=f"ML Service error: {exc.response.text}")
 
-    async def verify_attendance(self, image_file: UploadFile):
+    async def verify_attendance(self, image_file: UploadFile, student_id: str = None):
         """
         Sends the image to the ML service to verify identity.
         Expected ML endpoint: POST /verify
-        Form data: file
-        Expected Response: { "matched": bool, "student_id": str, "confidence": float, ... }
+        Form data: file, student_id (optional)
         """
         url = f"{self.base_url}/verify"
         
@@ -50,14 +49,17 @@ class MLClient:
         await image_file.seek(0) 
 
         files = {"file": (image_file.filename, file_content, image_file.content_type)}
+        data = {}
+        if student_id:
+            data["student_id"] = student_id
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(trust_env=False) as client:
             try:
-                response = await client.post(url, files=files, timeout=10.0)
+                response = await client.post(url, files=files, data=data, timeout=60.0)
                 response.raise_for_status()
                 return response.json()
             except httpx.RequestError as exc:
-                logger.error(f"An error occurred while requesting {exc.request.url!r}.")
+                logger.error(f"An error occurred while requesting {exc.request.url!r}: {exc}")
                 raise HTTPException(status_code=503, detail=f"ML Service unavailable: {str(exc)}")
             except httpx.HTTPStatusError as exc:
                 logger.error(f"Error response {exc.response.status_code} while requesting {exc.request.url!r}.")

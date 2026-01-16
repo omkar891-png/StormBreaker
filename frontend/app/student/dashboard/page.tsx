@@ -11,31 +11,78 @@ import { Label } from "@/components/ui/label"
 import { ScanFace, CreditCard, CheckCircle2, Clock, MapPin } from "lucide-react"
 
 export default function StudentDashboard() {
-    // Mock Data
-    const student = {
-        name: "Alex Doe",
-        id: "STU-2024-001",
-        course: "Computer Science",
-        attendance: 85,
-        lastMarked: "Today, 9:30 AM",
-        performance: "Excellent"
-    }
+    return (
+        <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground">Loading dashboard...</div>}>
+            <StudentDashboardContent />
+        </React.Suspense>
+    )
+}
 
+function StudentDashboardContent() {
+    const [student, setStudent] = React.useState<any>(null)
+    const [loading, setLoading] = React.useState(true)
     const router = useRouter()
     const searchParams = useSearchParams()
 
-    // Live Lecture State (Mocked: True to demonstrate the feature)
+    // Live Lecture State
     const [isLectureActive, setIsLectureActive] = React.useState(true)
     const [attendanceStatus, setAttendanceStatus] = React.useState<"idle" | "verifying" | "submitted">("idle")
     const [verificationMethod, setVerificationMethod] = React.useState("face")
     const [submittedTime, setSubmittedTime] = React.useState("")
 
     React.useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const token = localStorage.getItem("token")
+                if (!token) {
+                    router.push("/auth/login")
+                    return
+                }
+
+                const response = await fetch("http://localhost:8000/students/me", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                })
+
+                if (response.status === 401) {
+                    router.push("/auth/login")
+                    return
+                }
+
+                if (!response.ok) throw new Error("Failed to fetch profile")
+
+                const data = await response.json()
+
+                // Check if profile is complete
+                if (!data.is_profile_complete) {
+                    router.push("/student/onboarding")
+                    return
+                }
+
+                setStudent({
+                    name: data.full_name,
+                    id: data.roll_number,
+                    course: data.department,
+                    attendance: 0, // Default for now
+                    lastMarked: "Never",
+                    performance: "N/A"
+                })
+            } catch (error) {
+                console.error("Error fetching profile:", error)
+                // Optionally handle error
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchProfile()
+    }, [router])
+
+    React.useEffect(() => {
         if (searchParams.get('verified') === 'true') {
             setAttendanceStatus("submitted")
             setSubmittedTime(new Date().toLocaleTimeString())
-            // Clear param to avoid sticky state on refresh (optional, but good practice)
-            // router.replace('/student/dashboard') 
         }
     }, [searchParams])
 
@@ -49,14 +96,18 @@ export default function StudentDashboard() {
             return
         }
 
-
         setAttendanceStatus("verifying")
-        // Simulate Verification Delay
         setTimeout(() => {
             setAttendanceStatus("submitted")
             setSubmittedTime(new Date().toLocaleTimeString())
         }, 2500)
     }
+
+    if (loading) {
+        return <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground">Loading specific student profile...</div>
+    }
+
+    if (!student) return null;
 
     return (
         <div className="min-h-screen bg-background relative overflow-hidden">

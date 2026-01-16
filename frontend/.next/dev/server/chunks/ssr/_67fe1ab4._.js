@@ -199,16 +199,40 @@ function FaceVerificationPage() {
         setImgSrc(null);
         setStatus("idle");
     };
-    const handleVerify = ()=>{
+    const [error, setError] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"]("");
+    const handleVerify = async ()=>{
+        if (!imgSrc) return;
         setStatus("verifying");
-        // Simulate API call
-        setTimeout(()=>{
+        setError("");
+        try {
+            // Convert base64 to blob
+            const fetchRes = await fetch(imgSrc);
+            const blob = await fetchRes.blob();
+            const formData = new FormData();
+            formData.append("file", blob, "capture.jpg");
+            formData.append("subject", "Data Structures"); // Hardcoded for demo matching dashboard
+            const token = localStorage.getItem("token");
+            const response = await fetch("http://127.0.0.1:8000/attendance/mark", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+                body: formData
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || "Verification failed");
+            }
             setStatus("success");
             // Redirect back to dashboard after a delay
             setTimeout(()=>{
-                router.push("/student/attendance/id-card");
+                router.push("/student/dashboard?verified=true");
             }, 2000);
-        }, 2000);
+        } catch (err) {
+            console.error(err);
+            setStatus("error");
+            setError(err.message);
+        }
     };
     const videoConstraints = {
         width: 500,
@@ -222,7 +246,7 @@ function FaceVerificationPage() {
                 className: "absolute inset-0 bg-indigo-500/10 blur-[100px] pointer-events-none"
             }, void 0, false, {
                 fileName: "[project]/app/student/attendance/face/page.tsx",
-                lineNumber: 48,
+                lineNumber: 81,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -238,27 +262,27 @@ function FaceVerificationPage() {
                                         className: "h-6 w-6 text-indigo-400"
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/attendance/face/page.tsx",
-                                        lineNumber: 53,
+                                        lineNumber: 86,
                                         columnNumber: 25
                                     }, this),
                                     " Face Verification"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/student/attendance/face/page.tsx",
-                                lineNumber: 52,
+                                lineNumber: 85,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                 children: "Position your face within the frame and click capture."
                             }, void 0, false, {
                                 fileName: "[project]/app/student/attendance/face/page.tsx",
-                                lineNumber: 55,
+                                lineNumber: 88,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/student/attendance/face/page.tsx",
-                        lineNumber: 51,
+                        lineNumber: 84,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -276,12 +300,12 @@ function FaceVerificationPage() {
                                                     className: "h-10 w-10 text-white"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/student/attendance/face/page.tsx",
-                                                    lineNumber: 66,
+                                                    lineNumber: 99,
                                                     columnNumber: 37
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/student/attendance/face/page.tsx",
-                                                lineNumber: 65,
+                                                lineNumber: 98,
                                                 columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -289,7 +313,7 @@ function FaceVerificationPage() {
                                                 children: "Verified!"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/student/attendance/face/page.tsx",
-                                                lineNumber: 68,
+                                                lineNumber: 101,
                                                 columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -297,13 +321,13 @@ function FaceVerificationPage() {
                                                 children: "Redirecting..."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/student/attendance/face/page.tsx",
-                                                lineNumber: 69,
+                                                lineNumber: 102,
                                                 columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/student/attendance/face/page.tsx",
-                                        lineNumber: 64,
+                                        lineNumber: 97,
                                         columnNumber: 29
                                     }, this) : null,
                                     imgSrc ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
@@ -312,7 +336,7 @@ function FaceVerificationPage() {
                                         className: "w-full h-full object-cover transform scale-x-[-1]"
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/attendance/face/page.tsx",
-                                        lineNumber: 74,
+                                        lineNumber: 107,
                                         columnNumber: 29
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$webcam$2f$dist$2f$react$2d$webcam$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                                         audio: false,
@@ -324,7 +348,7 @@ function FaceVerificationPage() {
                                         className: "w-full h-full object-cover transform scale-x-[-1]"
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/attendance/face/page.tsx",
-                                        lineNumber: 76,
+                                        lineNumber: 109,
                                         columnNumber: 29
                                     }, this),
                                     !imgSrc && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -334,26 +358,26 @@ function FaceVerificationPage() {
                                                 className: "w-full h-[1px] bg-indigo-500/30 absolute"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/student/attendance/face/page.tsx",
-                                                lineNumber: 90,
+                                                lineNumber: 123,
                                                 columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "h-full w-[1px] bg-indigo-500/30 absolute"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/student/attendance/face/page.tsx",
-                                                lineNumber: 91,
+                                                lineNumber: 124,
                                                 columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/student/attendance/face/page.tsx",
-                                        lineNumber: 89,
+                                        lineNumber: 122,
                                         columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/student/attendance/face/page.tsx",
-                                lineNumber: 62,
+                                lineNumber: 95,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -367,14 +391,14 @@ function FaceVerificationPage() {
                                             className: "mr-2 h-5 w-5"
                                         }, void 0, false, {
                                             fileName: "[project]/app/student/attendance/face/page.tsx",
-                                            lineNumber: 100,
+                                            lineNumber: 133,
                                             columnNumber: 33
                                         }, this),
                                         " Capture Photo"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/student/attendance/face/page.tsx",
-                                    lineNumber: 99,
+                                    lineNumber: 132,
                                     columnNumber: 29
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
                                     children: [
@@ -390,14 +414,14 @@ function FaceVerificationPage() {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/student/attendance/face/page.tsx",
-                                                            lineNumber: 107,
+                                                            lineNumber: 140,
                                                             columnNumber: 45
                                                         }, this),
                                                         " Retake"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/student/attendance/face/page.tsx",
-                                                    lineNumber: 106,
+                                                    lineNumber: 139,
                                                     columnNumber: 41
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -409,14 +433,14 @@ function FaceVerificationPage() {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/student/attendance/face/page.tsx",
-                                                            lineNumber: 110,
+                                                            lineNumber: 143,
                                                             columnNumber: 45
                                                         }, this),
                                                         " Verify"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/student/attendance/face/page.tsx",
-                                                    lineNumber: 109,
+                                                    lineNumber: 142,
                                                     columnNumber: 41
                                                 }, this)
                                             ]
@@ -428,32 +452,69 @@ function FaceVerificationPage() {
                                             children: "Processing..."
                                         }, void 0, false, {
                                             fileName: "[project]/app/student/attendance/face/page.tsx",
-                                            lineNumber: 115,
+                                            lineNumber: 148,
+                                            columnNumber: 37
+                                        }, this),
+                                        status === 'error' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "w-full flex flex-col gap-2",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "bg-destructive/20 text-destructive p-3 rounded-lg text-center text-sm border border-destructive/50",
+                                                    children: error
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/student/attendance/face/page.tsx",
+                                                    lineNumber: 154,
+                                                    columnNumber: 41
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
+                                                    variant: "outline",
+                                                    size: "lg",
+                                                    className: "w-full border-white/10 hover:bg-white/5",
+                                                    onClick: handleRetake,
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$rotate$2d$ccw$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__RotateCcw$3e$__["RotateCcw"], {
+                                                            className: "mr-2 h-4 w-4"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/student/attendance/face/page.tsx",
+                                                            lineNumber: 158,
+                                                            columnNumber: 45
+                                                        }, this),
+                                                        " Try Again"
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/student/attendance/face/page.tsx",
+                                                    lineNumber: 157,
+                                                    columnNumber: 41
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/student/attendance/face/page.tsx",
+                                            lineNumber: 153,
                                             columnNumber: 37
                                         }, this)
                                     ]
                                 }, void 0, true)
                             }, void 0, false, {
                                 fileName: "[project]/app/student/attendance/face/page.tsx",
-                                lineNumber: 97,
+                                lineNumber: 130,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/student/attendance/face/page.tsx",
-                        lineNumber: 59,
+                        lineNumber: 92,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/student/attendance/face/page.tsx",
-                lineNumber: 50,
+                lineNumber: 83,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/student/attendance/face/page.tsx",
-        lineNumber: 47,
+        lineNumber: 80,
         columnNumber: 9
     }, this);
 }

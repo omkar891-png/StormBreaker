@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/faculty/layout,_N_T_/faculty/attendance/layout,_N_T_/faculty/attendance/page,_N_T_/faculty/attendance"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/faculty/attendance/__PAGE__",
+    "/faculty/attendance",
+    "/faculty",
+    "/_index",
+    "/_head"
+  ]
+}

@@ -1,6 +1,7 @@
 {
   "version": 3,
   "pages404": true,
+  "appType": "app",
   "caseSensitive": false,
   "basePath": "",
   "redirects": [
@@ -40,10 +41,46 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/admin/academic",
+      "regex": "^/admin/academic(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/academic(?:/)?$"
+    },
+    {
+      "page": "/admin/attendance",
+      "regex": "^/admin/attendance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/attendance(?:/)?$"
+    },
+    {
       "page": "/admin/dashboard",
       "regex": "^/admin/dashboard(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/admin/dashboard(?:/)?$"
+    },
+    {
+      "page": "/admin/exams",
+      "regex": "^/admin/exams(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/exams(?:/)?$"
+    },
+    {
+      "page": "/admin/notifications",
+      "regex": "^/admin/notifications(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/notifications(?:/)?$"
+    },
+    {
+      "page": "/admin/reports",
+      "regex": "^/admin/reports(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/reports(?:/)?$"
+    },
+    {
+      "page": "/admin/settings",
+      "regex": "^/admin/settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/settings(?:/)?$"
     },
     {
       "page": "/admin/students",
@@ -56,6 +93,18 @@
       "regex": "^/admin/students/add(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/admin/students/add(?:/)?$"
+    },
+    {
+      "page": "/admin/teachers",
+      "regex": "^/admin/teachers(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/teachers(?:/)?$"
+    },
+    {
+      "page": "/admin/teachers/add",
+      "regex": "^/admin/teachers/add(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/teachers/add(?:/)?$"
     },
     {
       "page": "/auth/login",
@@ -106,6 +155,24 @@
       "namedRegex": "^/dashboards(?:/)?$"
     },
     {
+      "page": "/faculty/attendance",
+      "regex": "^/faculty/attendance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/faculty/attendance(?:/)?$"
+    },
+    {
+      "page": "/faculty/dashboard",
+      "regex": "^/faculty/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/faculty/dashboard(?:/)?$"
+    },
+    {
+      "page": "/faculty/lecture/live",
+      "regex": "^/faculty/lecture/live(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/faculty/lecture/live(?:/)?$"
+    },
+    {
       "page": "/features",
       "regex": "^/features(?:/)?$",
       "routeKeys": {},
@@ -130,6 +197,18 @@
       "namedRegex": "^/security(?:/)?$"
     },
     {
+      "page": "/student/attendance/face",
+      "regex": "^/student/attendance/face(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/student/attendance/face(?:/)?$"
+    },
+    {
+      "page": "/student/attendance/id-card",
+      "regex": "^/student/attendance/id\\-card(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/student/attendance/id\\-card(?:/)?$"
+    },
+    {
       "page": "/student/dashboard",
       "regex": "^/student/dashboard(?:/)?$",
       "routeKeys": {},
@@ -150,7 +229,6 @@
     "didPostponeHeader": "x-nextjs-postponed",
     "contentTypeHeader": "text/x-component",
     "suffix": ".rsc",
-    "prefetchSuffix": ".prefetch.rsc",
     "prefetchSegmentHeader": "next-router-segment-prefetch",
     "prefetchSegmentSuffix": ".segment.rsc",
     "prefetchSegmentDirSuffix": ".segments",

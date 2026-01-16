@@ -1,0 +1,39 @@
+=== DATABASE CONTENTS ===
+
+--- Users (15) ---
+ID: 1 | Email: admin_test_1@stormbreaker.com | Role: admin
+ID: 2 | Email: testbatch1@sb.com | Role: student
+ID: 3 | Email: testbatch2@sb.com | Role: student
+ID: 4 | Email: admin@stormbreaker.com | Role: admin
+ID: 5 | Email: admin@s.com | Role: admin
+ID: 6 | Email: rahul.sharma01@gmail.com | Role: student
+ID: 7 | Email: ananya.singh02@gmail.com | Role: student
+ID: 8 | Email: mohit.verma03@gmail.com | Role: student
+ID: 9 | Email: priya.patel04@gmail.com | Role: student
+ID: 10 | Email: neha.gupta05@gmail.com | Role: student
+ID: 11 | Email: aman.kumar06@gmail.com | Role: student
+ID: 12 | Email: sneha.iyer07@gmail.com | Role: student
+ID: 13 | Email: rohit.mehta08@gmail.com | Role: student
+ID: 14 | Email: kavita.rao09@gmail.com | Role: student
+ID: 15 | Email: arjun.malhotra10@gmail.com | Role: student
+
+--- Students (12) ---
+ID: 1 | Name: Test Batch 1 | Roll: BATCH001 | Dept: CS | Year: FY | UserID: 2 | Profile Complete: False
+ID: 2 | Name: Test Batch 2 | Roll: BATCH002 | Dept: CS | Year: FY | UserID: 3 | Profile Complete: False
+ID: 3 | Name: Rahul Sharma | Roll: 1 | Dept: ME | Year: SY | UserID: 6 | Profile Complete: False
+ID: 4 | Name: Ananya Singh | Roll: 2 | Dept: ME | Year: SY | UserID: 7 | Profile Complete: False
+ID: 5 | Name: Mohit Verma | Roll: 3 | Dept: ME | Year: SY | UserID: 8 | Profile Complete: False
+ID: 6 | Name: Priya Patel | Roll: 4 | Dept: ME | Year: SY | UserID: 9 | Profile Complete: False
+ID: 7 | Name: Neha Gupta | Roll: 5 | Dept: ME | Year: SY | UserID: 10 | Profile Complete: False
+ID: 8 | Name: Aman Kumar | Roll: 6 | Dept: ME | Year: SY | UserID: 11 | Profile Complete: False
+ID: 9 | Name: Sneha Iyer | Roll: 7 | Dept: ME | Year: SY | UserID: 12 | Profile Complete: False
+ID: 10 | Name: Rohit Mehta | Roll: 8 | Dept: ME | Year: SY | UserID: 13 | Profile Complete: False
+ID: 11 | Name: Kavita Rao | Roll: 9 | Dept: ME | Year: SY | UserID: 14 | Profile Complete: False
+ID: 12 | Name: Arjun Malhotra | Roll: 10 | Dept: ME | Year: SY | UserID: 15 | Profile Complete: False
+
+--- Attendance (0) ---
+
+--- Exams (0) ---
+
+--- Notifications (0) ---
+

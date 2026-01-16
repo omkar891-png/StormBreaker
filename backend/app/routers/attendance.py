@@ -11,31 +11,36 @@ router = APIRouter(
     tags=["attendance"],
 )
 
+from ..dependencies import get_current_active_user
+
 @router.post("/mark", response_model=schemas.Attendance)
 async def mark_attendance(
     subject: str = Form(...),
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
 ):
-    # 1. Verification via ML
+    # 0. Get Student ID from Current User
+    student = crud.get_student_by_user_id(db, user_id=current_user.id)
+    if not student:
+        raise HTTPException(status_code=404, detail="Student profile not found for this user")
+
+    # 1. Verification via ML (1:1 with Student ID)
     try:
-        verification_result = await ml_client.verify_attendance(file)
+        # Pass student.id to enforce 1:1 verification against their registered face
+        verification_result = await ml_client.verify_attendance(file, student_id=str(student.id))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Verification failed: {str(e)}")
     
     # 2. Check match status
     matched = verification_result.get("matched", False)
-    ml_student_id = verification_result.get("student_id")
     confidence = verification_result.get("confidence", 0.0)
     
-    if not matched or not ml_student_id:
-        raise HTTPException(status_code=401, detail="Face not recognized or match failed.")
+    if not matched:
+        raise HTTPException(status_code=401, detail="Face verification failed. Face does not match profile.")
         
-    # 3. Look up student
-    student_id = int(ml_student_id)
-    student = crud.get_student(db, student_id=student_id)
-    if not student:
-        raise HTTPException(status_code=404, detail=f"Student ID {student_id} found in ML but not in DB.")
+    # 3. Use the confirmed student object
+    # (student is already found above)
         
     # 4. Record Attendance
     attendance_data = schemas.AttendanceCreate(

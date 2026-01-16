@@ -10,12 +10,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+
   const [error, setError] = useState("")
 
   const handleLogin = async (e: React.FormEvent, role: string) => {
@@ -24,25 +32,59 @@ export default function LoginPage() {
     setError("")
 
     try {
-      // Simulate login - in production, this would call an API
-      if (email && password) {
-        // Store user session (in production, use secure HTTP-only cookies)
-        localStorage.setItem("user", JSON.stringify({ email, role }))
-
-        if (role === 'student') {
-          router.push("/student/dashboard")
-        } else if (role === 'admin') {
-          router.push("/admin/dashboard")
-        } else if (role === 'faculty') {
-          router.push("/faculty/dashboard")
-        } else {
-          router.push("/dashboard")
-        }
-      } else {
+      if (!email || !password) {
         setError("Please fill in all fields")
+        setIsLoading(false)
+        return
       }
-    } catch (err) {
-      setError("Login failed. Please try again.")
+
+
+
+      const formData = new URLSearchParams()
+      formData.append('username', email)
+      formData.append('password', password)
+
+      console.log("Login Attempt:", { email, password, role });
+      console.log("FormData:", formData.toString());
+
+
+
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData,
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(errorData.detail || 'Invalid credentials')
+      }
+
+      const data = await res.json()
+
+      // Store session
+      localStorage.setItem("token", data.access_token)
+      localStorage.setItem("user", JSON.stringify({
+        email,
+        role: data.role,
+        id: data.id
+      }))
+
+      if (data.role === 'student') {
+        router.push("/student/dashboard")
+      } else if (data.role === 'admin') {
+        router.push("/admin/dashboard")
+      } else if (data.role === 'faculty') {
+        router.push("/faculty/dashboard")
+      } else {
+        router.push("/dashboard")
+      }
+
+    } catch (err: any) {
+      console.error(err)
+      setError(err.message || "Login failed. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -58,10 +100,6 @@ export default function LoginPage() {
           <CardDescription>Enter your credentials to access your account</CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Using Tabs component would be better if I had the import, but sticking to simple buttons or reusing the form for now. 
-             Actually, I see I can just modify handleLogin to check the email or just hardcode for demo. 
-             Let's implement a proper Tab system using state.
-          */}
           <Tabs defaultValue="student" className="w-full mb-6">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="student">Student</TabsTrigger>
@@ -79,8 +117,7 @@ export default function LoginPage() {
                       type="email"
                       placeholder={tab === 'student' ? "student@university.edu" : "admin@university.edu"}
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)} // Shared state for demo
-                      className="bg-background/50 border-primary/20 focus:border-primary/50"
+                      onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
 
@@ -91,10 +128,11 @@ export default function LoginPage() {
                       type="password"
                       placeholder="••••••••"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)} // Shared state for demo
-                      className="bg-background/50 border-primary/20 focus:border-primary/50"
+                      onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
+
+
 
                   {error && (
                     <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
