@@ -1,0 +1,22 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/dashboard/page": "/admin/dashboard",
+  "/admin/students/add/page": "/admin/students/add",
+  "/admin/students/page": "/admin/students",
+  "/auth/login/page": "/auth/login",
+  "/contact/page": "/contact",
+  "/dashboard/attendance/page": "/dashboard/attendance",
+  "/dashboard/page": "/dashboard",
+  "/dashboard/reports/page": "/dashboard/reports",
+  "/dashboard/settings/page": "/dashboard/settings",
+  "/dashboard/students/page": "/dashboard/students",
+  "/dashboards/page": "/dashboards",
+  "/features/page": "/features",
+  "/how-it-works/page": "/how-it-works",
+  "/page": "/",
+  "/reports/page": "/reports",
+  "/security/page": "/security",
+  "/student/dashboard/page": "/student/dashboard",
+  "/student/profile/page": "/student/profile"
+}

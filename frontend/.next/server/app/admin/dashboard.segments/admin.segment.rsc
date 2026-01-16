@@ -1,0 +1,5 @@
+1:"$Sreact.fragment"
+2:I[53509,["/_next/static/chunks/0c6932420e96e619.js","/_next/static/chunks/29cf11504eefeb05.js","/_next/static/chunks/0898078cce07b378.js"],"AdminSidebar"]
+3:I[39756,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/247eb132b7f7b574.js"],"default"]
+4:I[37457,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/247eb132b7f7b574.js"],"default"]
+0:{"buildId":"sM6z3PzpbH9kwWnoxsZ-E","rsc":["$","$1","c",{"children":[[["$","script","script-0",{"src":"/_next/static/chunks/29cf11504eefeb05.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/0898078cce07b378.js","async":true}]],["$","div",null,{"className":"min-h-screen bg-background relative flex","children":[["$","$L2",null,{}],["$","div",null,{"className":"flex-1 ml-64 relative overflow-x-hidden","children":[["$","div",null,{"className":"fixed top-0 left-64 right-0 h-[500px] bg-primary/10 blur-[120px] rounded-full pointer-events-none -z-10 mx-auto w-1/2"}],["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}]}]]}]]}]]}],"loading":null,"isPartial":false}

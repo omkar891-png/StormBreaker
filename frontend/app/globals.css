@@ -1,0 +1,126 @@
+@import "tw-animate-css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Professional Futurist Theme (Default Dark) */
+    --background: oklch(0.12 0.06 275);
+    /* Deep Indigo/Purple Background */
+    --foreground: oklch(0.98 0.01 270);
+    /* White with slight tint */
+
+    --card: oklch(0.18 0.06 275);
+    /* Variable for fallback, but components use glass */
+    --card-foreground: oklch(0.98 0.01 270);
+
+    --popover: oklch(0.12 0.06 275);
+    --popover-foreground: oklch(0.98 0.01 270);
+
+    --primary: oklch(0.55 0.28 275);
+    /* Electric Purple/Blue */
+    --primary-foreground: oklch(0.98 0 0);
+
+    --secondary: oklch(0.35 0.15 260);
+    /* Deep Blue accent */
+    --secondary-foreground: oklch(0.98 0 0);
+
+    --muted: oklch(0.25 0.05 275);
+    --muted-foreground: oklch(0.7 0.03 270);
+
+    --accent: oklch(0.4 0.2 290);
+    /* Vibrant Purple accent */
+    --accent-foreground: oklch(0.98 0 0);
+
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.98 0 0);
+
+    --border: oklch(0.25 0.08 275);
+    --input: oklch(0.25 0.08 275);
+    --ring: oklch(0.55 0.28 275);
+
+    --radius: 0.75rem;
+
+    --chart-1: oklch(0.55 0.28 275);
+    --chart-2: oklch(0.4 0.2 290);
+    --chart-3: oklch(0.35 0.15 260);
+    --chart-4: oklch(0.6 0.15 200);
+    --chart-5: oklch(0.7 0.1 240);
+
+    --sidebar: oklch(0.15 0.06 275);
+    --sidebar-foreground: oklch(0.98 0.01 270);
+    --sidebar-primary: oklch(0.55 0.28 275);
+    --sidebar-primary-foreground: oklch(0.98 0 0);
+    --sidebar-accent: oklch(0.25 0.08 275);
+    --sidebar-accent-foreground: oklch(0.98 0 0);
+    --sidebar-border: oklch(0.25 0.08 275);
+    --sidebar-ring: oklch(0.55 0.28 275);
+  }
+
+  .dark {
+    /* Identical to root for consistency in this theme */
+    --background: oklch(0.12 0.06 275);
+    --foreground: oklch(0.98 0.01 270);
+    --card: oklch(0.18 0.06 275);
+    --card-foreground: oklch(0.98 0.01 270);
+    --popover: oklch(0.12 0.06 275);
+    --popover-foreground: oklch(0.98 0.01 270);
+    --primary: oklch(0.55 0.28 275);
+    --primary-foreground: oklch(0.98 0 0);
+    --secondary: oklch(0.35 0.15 260);
+    --secondary-foreground: oklch(0.98 0 0);
+    --muted: oklch(0.25 0.05 275);
+    --muted-foreground: oklch(0.7 0.03 270);
+    --accent: oklch(0.4 0.2 290);
+    --accent-foreground: oklch(0.98 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.98 0 0);
+    --border: oklch(0.25 0.08 275);
+    --input: oklch(0.25 0.08 275);
+    --ring: oklch(0.55 0.28 275);
+    --sidebar: oklch(0.15 0.06 275);
+    --sidebar-foreground: oklch(0.98 0.01 270);
+    --sidebar-primary: oklch(0.55 0.28 275);
+    --sidebar-primary-foreground: oklch(0.98 0 0);
+    --sidebar-accent: oklch(0.25 0.08 275);
+    --sidebar-accent-foreground: oklch(0.98 0 0);
+    --sidebar-border: oklch(0.25 0.08 275);
+    --sidebar-ring: oklch(0.55 0.28 275);
+  }
+
+  * {
+    @apply border-border outline-ring;
+  }
+
+  body {
+    /* Updated background to dark theme */
+    @apply text-foreground bg-background;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+
+  .glass-dark {
+    @apply bg-white/5 backdrop-blur-lg border border-primary border-opacity-20;
+  }
+
+  .glow-primary {
+    @apply shadow-lg shadow-primary;
+  }
+
+  .glow-primary-hover {
+    @apply hover:shadow-xl hover:shadow-primary transition-shadow duration-300;
+  }
+
+  .glow-secondary {
+    @apply shadow-lg shadow-secondary;
+  }
+
+  .glow-secondary-hover {
+    @apply hover:shadow-xl hover:shadow-secondary transition-shadow duration-300;
+  }
+}

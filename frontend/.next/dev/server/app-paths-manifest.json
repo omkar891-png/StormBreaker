@@ -1,0 +1,18 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/academic/page": "app/admin/academic/page.js",
+  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/exams/page": "app/admin/exams/page.js",
+  "/admin/notifications/page": "app/admin/notifications/page.js",
+  "/admin/reports/page": "app/admin/reports/page.js",
+  "/admin/settings/page": "app/admin/settings/page.js",
+  "/admin/students/add/page": "app/admin/students/add/page.js",
+  "/admin/teachers/add/page": "app/admin/teachers/add/page.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/faculty/attendance/page": "app/faculty/attendance/page.js",
+  "/faculty/dashboard/page": "app/faculty/dashboard/page.js",
+  "/page": "app/page.js",
+  "/student/attendance/face/page": "app/student/attendance/face/page.js",
+  "/student/attendance/id-card/page": "app/student/attendance/id-card/page.js",
+  "/student/dashboard/page": "app/student/dashboard/page.js"
+}
