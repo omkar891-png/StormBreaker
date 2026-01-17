@@ -15,7 +15,10 @@ import {
     MessageSquare,
     Settings,
     LogOut,
-    BookOpen
+    BookOpen,
+    Award,
+    Calendar,
+    Plane
 } from "lucide-react"
 
 const sidebarItems = [
@@ -24,6 +27,9 @@ const sidebarItems = [
     { label: "Teachers", href: "/admin/teachers", icon: GraduationCap },
     { label: "Classes & Subjects", href: "/admin/academic", icon: BookOpen },
     { label: "Attendance", href: "/admin/attendance", icon: ClipboardCheck },
+    { label: "Results", href: "/admin/results", icon: Award },
+    { label: "Timetable", href: "/admin/timetable", icon: Calendar },
+    { label: "Leave Requests", href: "/admin/leave", icon: Plane },
     { label: "Exams", href: "/admin/exams", icon: CalendarRange },
     { label: "Reports", href: "/admin/reports", icon: FileText },
     { label: "Notifications", href: "/admin/notifications", icon: Bell },

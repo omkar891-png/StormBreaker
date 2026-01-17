@@ -284,13 +284,17 @@ export default function AdminDashboardPage() {
                                     <span className="text-xs">Add Student</span>
                                 </Link>
                             </Button>
-                            <Button variant="outline" className="h-20 flex-col gap-2 border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all">
-                                <GraduationCap className="h-5 w-5 text-accent" />
-                                <span className="text-xs">Add Teacher</span>
+                            <Button variant="outline" className="h-20 flex-col gap-2 border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all" asChild>
+                                <Link href="/admin/teachers/add">
+                                    <GraduationCap className="h-5 w-5 text-accent" />
+                                    <span className="text-xs">Add Teacher</span>
+                                </Link>
                             </Button>
-                            <Button variant="outline" className="h-20 flex-col gap-2 border-white/10 hover:border-green-400/50 hover:bg-green-400/5 transition-all">
-                                <Calendar className="h-5 w-5 text-green-400" />
-                                <span className="text-xs">Schedule Class</span>
+                            <Button variant="outline" className="h-20 flex-col gap-2 border-white/10 hover:border-green-400/50 hover:bg-green-400/5 transition-all" asChild>
+                                <Link href="/admin/academic">
+                                    <Calendar className="h-5 w-5 text-green-400" />
+                                    <span className="text-xs">Academic Structure</span>
+                                </Link>
                             </Button>
                             <Button variant="outline" className="h-20 flex-col gap-2 border-white/10 hover:border-yellow-400/50 hover:bg-yellow-400/5 transition-all">
                                 <AlertTriangle className="h-5 w-5 text-yellow-400" />

@@ -322,6 +322,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-check.js [app-client] (ecmascript) <export default as CheckCircle2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/clock.js [app-client] (ecmascript) <export default as Clock>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/map-pin.js [app-client] (ecmascript) <export default as MapPin>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$triangle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertTriangle$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/triangle-alert.js [app-client] (ecmascript) <export default as AlertTriangle>");
 ;
 var _s = __turbopack_context__.k.signature();
 "use client";
@@ -357,61 +358,77 @@ function StudentDashboard() {
 _c = StudentDashboard;
 function StudentDashboardContent() {
     _s();
-    const [student, setStudent] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](null);
+    const [studentProfile, setStudentProfile] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](null);
+    const [stats, setStats] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](null);
+    const [activeSession, setActiveSession] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](null);
     const [loading, setLoading] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](true);
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     const searchParams = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSearchParams"])();
     // Live Lecture State
-    const [isLectureActive, setIsLectureActive] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](true);
     const [attendanceStatus, setAttendanceStatus] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"]("idle");
     const [verificationMethod, setVerificationMethod] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"]("face");
     const [submittedTime, setSubmittedTime] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"]("");
-    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
-        "StudentDashboardContent.useEffect": ()=>{
-            const fetchProfile = {
-                "StudentDashboardContent.useEffect.fetchProfile": async ()=>{
-                    try {
-                        const token = localStorage.getItem("token");
-                        if (!token) {
-                            router.push("/auth/login");
-                            return;
-                        }
-                        const response = await fetch("http://localhost:8000/students/me", {
-                            headers: {
-                                "Authorization": `Bearer ${token}`
-                            }
-                        });
-                        if (response.status === 401) {
-                            router.push("/auth/login");
-                            return;
-                        }
-                        if (!response.ok) throw new Error("Failed to fetch profile");
-                        const data = await response.json();
-                        // Check if profile is complete
-                        if (!data.is_profile_complete) {
-                            router.push("/student/onboarding");
-                            return;
-                        }
-                        setStudent({
-                            name: data.full_name,
-                            id: data.roll_number,
-                            course: data.department,
-                            attendance: 0,
-                            lastMarked: "Never",
-                            performance: "N/A"
-                        });
-                    } catch (error) {
-                        console.error("Error fetching profile:", error);
-                    // Optionally handle error
-                    } finally{
-                        setLoading(false);
+    const fetchData = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
+        "StudentDashboardContent.useCallback[fetchData]": async ()=>{
+            const token = localStorage.getItem("token");
+            if (!token) {
+                router.push("/auth/login");
+                return;
+            }
+            try {
+                const headers = {
+                    "Authorization": `Bearer ${token}`
+                };
+                // 1. Fetch Student Stats & Profile Info
+                const statsRes = await fetch("/api/reports/student-stats", {
+                    headers
+                });
+                if (statsRes.status === 401) {
+                    router.push("/auth/login");
+                    return;
+                }
+                if (!statsRes.ok) throw new Error("Failed to fetch statistics");
+                const statsData = await statsRes.json();
+                setStats(statsData);
+                setStudentProfile(statsData);
+                // Check if profile is complete
+                if (!statsData.is_profile_complete) {
+                    router.push("/student/onboarding");
+                    return;
+                }
+                // 2. Fetch Active Session for this student's class (ignore division as per request)
+                const sessionsRes = await fetch(`/api/sessions/active?dept=${statsData.department}&year=${statsData.year}`, {
+                    headers
+                });
+                if (sessionsRes.ok) {
+                    const sessions = await sessionsRes.json();
+                    // Just take the first active session for now
+                    if (sessions.length > 0) {
+                        setActiveSession(sessions[0]);
+                    } else {
+                        setActiveSession(null);
                     }
                 }
-            }["StudentDashboardContent.useEffect.fetchProfile"];
-            fetchProfile();
+            } catch (error) {
+                console.error("Error fetching dashboard data:", error);
+            } finally{
+                setLoading(false);
+            }
+        }
+    }["StudentDashboardContent.useCallback[fetchData]"], [
+        router
+    ]);
+    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+        "StudentDashboardContent.useEffect": ()=>{
+            fetchData();
+            // Poll for active sessions every 5 seconds for real-time responsiveness
+            const interval = setInterval(fetchData, 5000);
+            return ({
+                "StudentDashboardContent.useEffect": ()=>clearInterval(interval)
+            })["StudentDashboardContent.useEffect"];
         }
     }["StudentDashboardContent.useEffect"], [
-        router
+        fetchData
     ]);
     __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
         "StudentDashboardContent.useEffect": ()=>{
@@ -424,31 +441,43 @@ function StudentDashboardContent() {
         searchParams
     ]);
     const handleMarkAttendance = ()=>{
+        if (!activeSession) return;
         if (verificationMethod === 'face') {
-            router.push('/student/attendance/face');
+            router.push(`/student/attendance/face?subject=${encodeURIComponent(activeSession.subject)}&session_id=${activeSession.id}`);
             return;
         }
         if (verificationMethod === 'idcard') {
-            router.push('/student/attendance/id-card');
+            router.push(`/student/attendance/id-card?subject=${encodeURIComponent(activeSession.subject)}&session_id=${activeSession.id}`);
             return;
         }
-        setAttendanceStatus("verifying");
-        setTimeout(()=>{
-            setAttendanceStatus("submitted");
-            setSubmittedTime(new Date().toLocaleTimeString());
-        }, 2500);
     };
     if (loading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "min-h-screen flex items-center justify-center bg-background text-muted-foreground",
-            children: "Loading specific student profile..."
-        }, void 0, false, {
+            className: "min-h-screen flex flex-col items-center justify-center bg-background text-muted-foreground gap-4",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"
+                }, void 0, false, {
+                    fileName: "[project]/app/student/dashboard/page.tsx",
+                    lineNumber: 110,
+                    columnNumber: 17
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                    className: "animate-pulse",
+                    children: "Loading Your Dashboard..."
+                }, void 0, false, {
+                    fileName: "[project]/app/student/dashboard/page.tsx",
+                    lineNumber: 111,
+                    columnNumber: 17
+                }, this)
+            ]
+        }, void 0, true, {
             fileName: "[project]/app/student/dashboard/page.tsx",
-            lineNumber: 107,
-            columnNumber: 16
+            lineNumber: 109,
+            columnNumber: 13
         }, this);
     }
-    if (!student) return null;
+    if (!studentProfile) return null;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "min-h-screen bg-background relative overflow-hidden",
         children: [
@@ -456,14 +485,14 @@ function StudentDashboardContent() {
                 className: "absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-primary/20 blur-[120px] rounded-full pointer-events-none -z-10"
             }, void 0, false, {
                 fileName: "[project]/app/student/dashboard/page.tsx",
-                lineNumber: 115,
+                lineNumber: 121,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "absolute bottom-0 right-0 w-[500px] h-[500px] bg-accent/10 blur-[120px] rounded-full pointer-events-none -z-10"
             }, void 0, false, {
                 fileName: "[project]/app/student/dashboard/page.tsx",
-                lineNumber: 116,
+                lineNumber: 122,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
@@ -483,12 +512,12 @@ function StudentDashboardContent() {
                                             children: "SA"
                                         }, void 0, false, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 124,
+                                            lineNumber: 130,
                                             columnNumber: 33
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 123,
+                                        lineNumber: 129,
                                         columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -496,13 +525,13 @@ function StudentDashboardContent() {
                                         children: "Smart Attendance"
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 126,
+                                        lineNumber: 132,
                                         columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                lineNumber: 122,
+                                lineNumber: 128,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -513,24 +542,24 @@ function StudentDashboardContent() {
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-sm font-medium leading-none",
-                                                children: student.name
+                                                children: studentProfile.full_name
                                             }, void 0, false, {
                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                lineNumber: 131,
+                                                lineNumber: 137,
                                                 columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-xs text-muted-foreground",
-                                                children: student.id
+                                                children: studentProfile.roll_number
                                             }, void 0, false, {
                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                lineNumber: 132,
+                                                lineNumber: 138,
                                                 columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 130,
+                                        lineNumber: 136,
                                         columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -539,29 +568,29 @@ function StudentDashboardContent() {
                                             className: "h-9 w-9 border-2 border-primary/20 cursor-pointer hover:border-primary transition-colors",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AvatarImage"], {
-                                                    src: "/avatars/01.png",
-                                                    alt: student.name
+                                                    src: studentProfile.profile_picture || "/avatars/01.png",
+                                                    alt: studentProfile.full_name
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 136,
+                                                    lineNumber: 142,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AvatarFallback"], {
-                                                    children: "AD"
+                                                    children: studentProfile.full_name?.substring(0, 2).toUpperCase()
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 137,
+                                                    lineNumber: 143,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 135,
+                                            lineNumber: 141,
                                             columnNumber: 33
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 134,
+                                        lineNumber: 140,
                                         columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -574,43 +603,140 @@ function StudentDashboardContent() {
                                             children: "Logout"
                                         }, void 0, false, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 141,
+                                            lineNumber: 147,
                                             columnNumber: 33
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 140,
+                                        lineNumber: 146,
                                         columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                lineNumber: 129,
+                                lineNumber: 135,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/student/dashboard/page.tsx",
-                        lineNumber: 121,
+                        lineNumber: 127,
                         columnNumber: 21
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/student/dashboard/page.tsx",
-                    lineNumber: 120,
+                    lineNumber: 126,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/student/dashboard/page.tsx",
-                lineNumber: 119,
+                lineNumber: 125,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 animate-fade-in",
                 children: [
+                    (stats?.attendance_percentage || 0) < 75 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
+                        className: "border-l-4 border-l-red-500 bg-red-500/10 border-red-500/20 shadow-lg shadow-red-500/5",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
+                            className: "p-6 flex items-start gap-4",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "p-3 bg-red-500/20 rounded-full shrink-0 animate-pulse",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$triangle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertTriangle$3e$__["AlertTriangle"], {
+                                        className: "h-6 w-6 text-red-500"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/student/dashboard/page.tsx",
+                                        lineNumber: 162,
+                                        columnNumber: 33
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/app/student/dashboard/page.tsx",
+                                    lineNumber: 161,
+                                    columnNumber: 29
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                            className: "text-lg font-bold text-red-500 mb-1",
+                                            children: "Attendance Alert: Action Required"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/student/dashboard/page.tsx",
+                                            lineNumber: 165,
+                                            columnNumber: 33
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-muted-foreground mb-3",
+                                            children: [
+                                                "Your current attendance is ",
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    className: "font-bold text-red-400",
+                                                    children: [
+                                                        stats?.attendance_percentage,
+                                                        "%"
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/student/dashboard/page.tsx",
+                                                    lineNumber: 167,
+                                                    columnNumber: 64
+                                                }, this),
+                                                ", which is below the mandatory 75% threshold. You are currently on the defaulter list."
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/student/dashboard/page.tsx",
+                                            lineNumber: 166,
+                                            columnNumber: 33
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "flex gap-2",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                    variant: "destructive",
+                                                    size: "sm",
+                                                    className: "bg-red-500 hover:bg-red-600 text-white border-none shadow-lg shadow-red-500/20",
+                                                    children: "Contact HOD"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/student/dashboard/page.tsx",
+                                                    lineNumber: 171,
+                                                    columnNumber: 37
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                    variant: "outline",
+                                                    size: "sm",
+                                                    className: "border-red-500/30 hover:bg-red-500/10 text-red-400 hover:text-red-300",
+                                                    children: "View Detention Policy"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/student/dashboard/page.tsx",
+                                                    lineNumber: 172,
+                                                    columnNumber: 37
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/student/dashboard/page.tsx",
+                                            lineNumber: 170,
+                                            columnNumber: 33
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/student/dashboard/page.tsx",
+                                    lineNumber: 164,
+                                    columnNumber: 29
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/app/student/dashboard/page.tsx",
+                            lineNumber: 160,
+                            columnNumber: 25
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/app/student/dashboard/page.tsx",
+                        lineNumber: 159,
+                        columnNumber: 21
+                    }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
-                        className: `border-2 shadow-2xl relative overflow-hidden ${isLectureActive ? 'border-indigo-500/50 shadow-indigo-500/10' : 'border-white/10'}`,
+                        className: `border-2 shadow-2xl relative overflow-hidden ${activeSession ? 'border-indigo-500/50 shadow-indigo-500/10' : 'border-white/10'}`,
                         children: [
-                            isLectureActive && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            activeSession && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "absolute top-0 right-0 p-4",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                     className: "relative flex h-3 w-3",
@@ -619,25 +745,25 @@ function StudentDashboardContent() {
                                             className: "animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"
                                         }, void 0, false, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 156,
+                                            lineNumber: 184,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                             className: "relative inline-flex rounded-full h-3 w-3 bg-indigo-500"
                                         }, void 0, false, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 157,
+                                            lineNumber: 185,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                    lineNumber: 155,
+                                    lineNumber: 183,
                                     columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                lineNumber: 154,
+                                lineNumber: 182,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardHeader"], {
@@ -646,50 +772,53 @@ function StudentDashboardContent() {
                                         className: "flex items-center gap-3 mb-2",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
-                                                variant: isLectureActive ? "default" : "secondary",
-                                                className: isLectureActive ? "bg-indigo-600 hover:bg-indigo-700" : "",
-                                                children: isLectureActive ? "LIVE LECTURE ACTIVE" : "NO ACTIVE LECTURE"
+                                                variant: activeSession ? "default" : "secondary",
+                                                className: activeSession ? "bg-indigo-600 hover:bg-indigo-700" : "",
+                                                children: activeSession ? "LIVE LECTURE ACTIVE" : "NO ACTIVE LECTURE"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                lineNumber: 163,
+                                                lineNumber: 191,
                                                 columnNumber: 29
                                             }, this),
-                                            isLectureActive && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            activeSession && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 className: "text-xs text-indigo-400 font-mono animate-pulse",
-                                                children: "Session ID: LEC-8921"
-                                            }, void 0, false, {
+                                                children: [
+                                                    "Session ID: LEC-",
+                                                    activeSession.id
+                                                ]
+                                            }, void 0, true, {
                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                lineNumber: 166,
-                                                columnNumber: 49
+                                                lineNumber: 194,
+                                                columnNumber: 47
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 162,
+                                        lineNumber: 190,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
                                         className: "text-2xl",
-                                        children: isLectureActive ? "Data Structures & Algorithms" : "You're all caught up!"
+                                        children: activeSession ? activeSession.subject : "You're all caught up!"
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 168,
+                                        lineNumber: 196,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
-                                        children: isLectureActive ? "Prof. John Doe • Computer Science • Sy-CS-A" : "Check back later for your next scheduled session."
+                                        children: activeSession ? `Dept: ${activeSession.department} • Year: ${activeSession.year} • Div: ${activeSession.division}` : "Check back later for your next scheduled session."
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 171,
+                                        lineNumber: 199,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                lineNumber: 161,
+                                lineNumber: 189,
                                 columnNumber: 21
                             }, this),
-                            isLectureActive && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
+                            activeSession && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                                 className: "grid grid-cols-1 md:grid-cols-2 gap-6",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -702,35 +831,23 @@ function StudentDashboardContent() {
                                                         className: "h-4 w-4 text-indigo-400"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 181,
+                                                        lineNumber: 209,
                                                         columnNumber: 37
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        children: "Started: 10:00 AM"
-                                                    }, void 0, false, {
+                                                        children: [
+                                                            "Started: ",
+                                                            new Date(activeSession.start_time).toLocaleTimeString()
+                                                        ]
+                                                    }, void 0, true, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 182,
-                                                        columnNumber: 37
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "text-white/20",
-                                                        children: "|"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 183,
-                                                        columnNumber: 37
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        children: "Ends: 11:00 AM"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 184,
+                                                        lineNumber: 210,
                                                         columnNumber: 37
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                lineNumber: 180,
+                                                lineNumber: 208,
                                                 columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -740,26 +857,26 @@ function StudentDashboardContent() {
                                                         className: "h-4 w-4 text-indigo-400"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 187,
+                                                        lineNumber: 213,
                                                         columnNumber: 37
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        children: "Room 304, Main Building"
+                                                        children: "Live in Classroom"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 188,
+                                                        lineNumber: 214,
                                                         columnNumber: 37
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                lineNumber: 186,
+                                                lineNumber: 212,
                                                 columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 179,
+                                        lineNumber: 207,
                                         columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -773,12 +890,12 @@ function StudentDashboardContent() {
                                                         className: "h-8 w-8 text-white"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 196,
+                                                        lineNumber: 222,
                                                         columnNumber: 45
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 195,
+                                                    lineNumber: 221,
                                                     columnNumber: 41
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -786,7 +903,7 @@ function StudentDashboardContent() {
                                                     children: "Attendance Submitted!"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 198,
+                                                    lineNumber: 224,
                                                     columnNumber: 41
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -797,13 +914,13 @@ function StudentDashboardContent() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 199,
+                                                    lineNumber: 225,
                                                     columnNumber: 41
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 194,
+                                            lineNumber: 220,
                                             columnNumber: 37
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "space-y-3",
@@ -813,7 +930,7 @@ function StudentDashboardContent() {
                                                     children: "Select Verification Method:"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 203,
+                                                    lineNumber: 229,
                                                     columnNumber: 41
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -829,7 +946,7 @@ function StudentDashboardContent() {
                                                                     className: "h-6 w-6"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                    lineNumber: 211,
+                                                                    lineNumber: 237,
                                                                     columnNumber: 49
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -837,13 +954,13 @@ function StudentDashboardContent() {
                                                                     children: "Face ID"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                    lineNumber: 212,
+                                                                    lineNumber: 238,
                                                                     columnNumber: 49
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                                            lineNumber: 205,
+                                                            lineNumber: 231,
                                                             columnNumber: 45
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -856,7 +973,7 @@ function StudentDashboardContent() {
                                                                     className: "h-6 w-6"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                    lineNumber: 220,
+                                                                    lineNumber: 246,
                                                                     columnNumber: 49
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -864,19 +981,19 @@ function StudentDashboardContent() {
                                                                     children: "ID Card"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                    lineNumber: 221,
+                                                                    lineNumber: 247,
                                                                     columnNumber: 49
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                                            lineNumber: 214,
+                                                            lineNumber: 240,
                                                             columnNumber: 45
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 204,
+                                                    lineNumber: 230,
                                                     columnNumber: 41
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -891,57 +1008,57 @@ function StudentDashboardContent() {
                                                                 className: "animate-pulse"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                lineNumber: 233,
+                                                                lineNumber: 259,
                                                                 columnNumber: 53
                                                             }, this),
                                                             " Verifying..."
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 232,
+                                                        lineNumber: 258,
                                                         columnNumber: 49
                                                     }, this) : "Mark Attendance Now"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 225,
+                                                    lineNumber: 251,
                                                     columnNumber: 41
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 202,
+                                            lineNumber: 228,
                                             columnNumber: 37
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 192,
+                                        lineNumber: 218,
                                         columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                lineNumber: 178,
+                                lineNumber: 206,
                                 columnNumber: 25
                             }, this),
-                            !isLectureActive && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardFooter"], {
+                            !activeSession && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardFooter"], {
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                     disabled: true,
                                     className: "w-full opacity-50 cursor-not-allowed",
                                     children: "No Active Lecture Right Now"
                                 }, void 0, false, {
                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                    lineNumber: 246,
+                                    lineNumber: 272,
                                     columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                lineNumber: 245,
+                                lineNumber: 271,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/student/dashboard/page.tsx",
-                        lineNumber: 152,
+                        lineNumber: 180,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -957,12 +1074,12 @@ function StudentDashboardContent() {
                                             children: "Overall Attendance"
                                         }, void 0, false, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 256,
+                                            lineNumber: 282,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 255,
+                                        lineNumber: 281,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -975,29 +1092,29 @@ function StudentDashboardContent() {
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                 className: "text-4xl font-bold text-primary",
                                                                 children: [
-                                                                    student.attendance,
+                                                                    stats?.attendance_percentage || 0,
                                                                     "%"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                lineNumber: 261,
+                                                                lineNumber: 287,
                                                                 columnNumber: 37
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                 className: "text-xs text-muted-foreground mt-1",
                                                                 children: [
-                                                                    "Last marked: ",
-                                                                    student.lastMarked
+                                                                    "Last: ",
+                                                                    stats?.last_marked ? `${stats.last_marked.subject} at ${new Date(stats.last_marked.timestamp).toLocaleTimeString()}` : "Never"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                lineNumber: 262,
+                                                                lineNumber: 288,
                                                                 columnNumber: 37
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 260,
+                                                        lineNumber: 286,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1005,23 +1122,23 @@ function StudentDashboardContent() {
                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                             className: "text-xs font-bold",
                                                             children: [
-                                                                student.attendance,
+                                                                stats?.attendance_percentage || 0,
                                                                 "%"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                                            lineNumber: 265,
+                                                            lineNumber: 293,
                                                             columnNumber: 37
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 264,
+                                                        lineNumber: 292,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                lineNumber: 259,
+                                                lineNumber: 285,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1029,28 +1146,28 @@ function StudentDashboardContent() {
                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "h-full bg-primary",
                                                     style: {
-                                                        width: `${student.attendance}%`
+                                                        width: `${stats?.attendance_percentage || 0}%`
                                                     }
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 269,
+                                                    lineNumber: 297,
                                                     columnNumber: 33
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                lineNumber: 268,
+                                                lineNumber: 296,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 258,
+                                        lineNumber: 284,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                lineNumber: 254,
+                                lineNumber: 280,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1063,12 +1180,12 @@ function StudentDashboardContent() {
                                             children: "Performance Status"
                                         }, void 0, false, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 277,
+                                            lineNumber: 305,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 276,
+                                        lineNumber: 304,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1080,24 +1197,24 @@ function StudentDashboardContent() {
                                                         children: [
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                 className: "text-4xl font-bold text-accent",
-                                                                children: student.performance
+                                                                children: (stats?.attendance_percentage || 0) > 75 ? "Excellent" : (stats?.attendance_percentage || 0) > 60 ? "Good" : "Needs Attention"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                lineNumber: 282,
+                                                                lineNumber: 310,
                                                                 columnNumber: 37
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                 className: "text-xs text-muted-foreground mt-1",
-                                                                children: "Based on recent exams"
+                                                                children: "Based on attendance"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                lineNumber: 283,
+                                                                lineNumber: 313,
                                                                 columnNumber: 37
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 281,
+                                                        lineNumber: 309,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1105,13 +1222,13 @@ function StudentDashboardContent() {
                                                         children: "🏆"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 285,
+                                                        lineNumber: 315,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                lineNumber: 280,
+                                                lineNumber: 308,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1125,7 +1242,7 @@ function StudentDashboardContent() {
                                                                 children: "GPA"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                lineNumber: 289,
+                                                                lineNumber: 319,
                                                                 columnNumber: 37
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1133,13 +1250,13 @@ function StudentDashboardContent() {
                                                                 children: "3.8"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                lineNumber: 290,
+                                                                lineNumber: 320,
                                                                 columnNumber: 37
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 288,
+                                                        lineNumber: 318,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1150,7 +1267,7 @@ function StudentDashboardContent() {
                                                                 children: "Rank"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                lineNumber: 293,
+                                                                lineNumber: 323,
                                                                 columnNumber: 37
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1158,13 +1275,13 @@ function StudentDashboardContent() {
                                                                 children: "#12"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                lineNumber: 294,
+                                                                lineNumber: 324,
                                                                 columnNumber: 37
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 292,
+                                                        lineNumber: 322,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1175,7 +1292,7 @@ function StudentDashboardContent() {
                                                                 children: "Credits"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                lineNumber: 297,
+                                                                lineNumber: 327,
                                                                 columnNumber: 37
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1183,37 +1300,37 @@ function StudentDashboardContent() {
                                                                 children: "24"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                                lineNumber: 298,
+                                                                lineNumber: 328,
                                                                 columnNumber: 37
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                                        lineNumber: 296,
+                                                        lineNumber: 326,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                                lineNumber: 287,
+                                                lineNumber: 317,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 279,
+                                        lineNumber: 307,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                lineNumber: 275,
+                                lineNumber: 303,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/student/dashboard/page.tsx",
-                        lineNumber: 252,
+                        lineNumber: 278,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1231,91 +1348,112 @@ function StudentDashboardContent() {
                                                     children: "📚"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 312,
+                                                    lineNumber: 342,
                                                     columnNumber: 33
                                                 }, this),
                                                 "Academics"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 311,
+                                            lineNumber: 341,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 310,
+                                        lineNumber: 340,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
                                             className: "space-y-3",
                                             children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
-                                                    className: "flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                            className: "w-1.5 h-1.5 rounded-full bg-primary/50"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/student/dashboard/page.tsx",
-                                                            lineNumber: 319,
-                                                            columnNumber: 37
-                                                        }, this),
-                                                        "Attendance History"
-                                                    ]
-                                                }, void 0, true, {
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                    href: "/student/results",
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
+                                                        className: "flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "w-1.5 h-1.5 rounded-full bg-primary/50"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/student/dashboard/page.tsx",
+                                                                lineNumber: 350,
+                                                                columnNumber: 41
+                                                            }, this),
+                                                            "View Results & Grades"
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/student/dashboard/page.tsx",
+                                                        lineNumber: 349,
+                                                        columnNumber: 37
+                                                    }, this)
+                                                }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 318,
+                                                    lineNumber: 348,
                                                     columnNumber: 33
                                                 }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
-                                                    className: "flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                            className: "w-1.5 h-1.5 rounded-full bg-primary/50"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/student/dashboard/page.tsx",
-                                                            lineNumber: 323,
-                                                            columnNumber: 37
-                                                        }, this),
-                                                        "View Reports"
-                                                    ]
-                                                }, void 0, true, {
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                    href: "/student/assignments",
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
+                                                        className: "flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "w-1.5 h-1.5 rounded-full bg-primary/50"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/student/dashboard/page.tsx",
+                                                                lineNumber: 356,
+                                                                columnNumber: 41
+                                                            }, this),
+                                                            "My Assignments"
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/student/dashboard/page.tsx",
+                                                        lineNumber: 355,
+                                                        columnNumber: 37
+                                                    }, this)
+                                                }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 322,
+                                                    lineNumber: 354,
                                                     columnNumber: 33
                                                 }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
-                                                    className: "flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                            className: "w-1.5 h-1.5 rounded-full bg-primary/50"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/student/dashboard/page.tsx",
-                                                            lineNumber: 327,
-                                                            columnNumber: 37
-                                                        }, this),
-                                                        "Class Schedule"
-                                                    ]
-                                                }, void 0, true, {
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                    href: "/student/timetable",
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
+                                                        className: "flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "w-1.5 h-1.5 rounded-full bg-primary/50"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/student/dashboard/page.tsx",
+                                                                lineNumber: 362,
+                                                                columnNumber: 41
+                                                            }, this),
+                                                            "Class Timetable"
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/student/dashboard/page.tsx",
+                                                        lineNumber: 361,
+                                                        columnNumber: 37
+                                                    }, this)
+                                                }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 326,
+                                                    lineNumber: 360,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 317,
+                                            lineNumber: 347,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 316,
+                                        lineNumber: 346,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                lineNumber: 309,
+                                lineNumber: 339,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1330,19 +1468,19 @@ function StudentDashboardContent() {
                                                     children: "📝"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 338,
+                                                    lineNumber: 374,
                                                     columnNumber: 33
                                                 }, this),
                                                 "Exam Portal"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 337,
+                                            lineNumber: 373,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 336,
+                                        lineNumber: 372,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1356,14 +1494,14 @@ function StudentDashboardContent() {
                                                             className: "w-1.5 h-1.5 rounded-full bg-accent/50"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                                            lineNumber: 345,
+                                                            lineNumber: 381,
                                                             columnNumber: 37
                                                         }, this),
                                                         "Exam Registration"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 344,
+                                                    lineNumber: 380,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
@@ -1373,14 +1511,14 @@ function StudentDashboardContent() {
                                                             className: "w-1.5 h-1.5 rounded-full bg-accent/50"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                                            lineNumber: 349,
+                                                            lineNumber: 385,
                                                             columnNumber: 37
                                                         }, this),
                                                         "Admit Cards"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 348,
+                                                    lineNumber: 384,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
@@ -1390,31 +1528,31 @@ function StudentDashboardContent() {
                                                             className: "w-1.5 h-1.5 rounded-full bg-accent/50"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                                            lineNumber: 353,
+                                                            lineNumber: 389,
                                                             columnNumber: 37
                                                         }, this),
                                                         "Results & Grades"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 352,
+                                                    lineNumber: 388,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 343,
+                                            lineNumber: 379,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 342,
+                                        lineNumber: 378,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                lineNumber: 335,
+                                lineNumber: 371,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1429,19 +1567,19 @@ function StudentDashboardContent() {
                                                     children: "💬"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 364,
+                                                    lineNumber: 400,
                                                     columnNumber: 33
                                                 }, this),
                                                 "Support"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 363,
+                                            lineNumber: 399,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 362,
+                                        lineNumber: 398,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1455,31 +1593,38 @@ function StudentDashboardContent() {
                                                             className: "w-1.5 h-1.5 rounded-full bg-green-500/50"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                                            lineNumber: 371,
+                                                            lineNumber: 407,
                                                             columnNumber: 37
                                                         }, this),
                                                         "Submit Feedback"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 370,
+                                                    lineNumber: 406,
                                                     columnNumber: 33
                                                 }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
-                                                    className: "flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                            className: "w-1.5 h-1.5 rounded-full bg-green-500/50"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/student/dashboard/page.tsx",
-                                                            lineNumber: 375,
-                                                            columnNumber: 37
-                                                        }, this),
-                                                        "Request Leave"
-                                                    ]
-                                                }, void 0, true, {
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                    href: "/student/leave",
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
+                                                        className: "flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "w-1.5 h-1.5 rounded-full bg-green-500/50"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/student/dashboard/page.tsx",
+                                                                lineNumber: 412,
+                                                                columnNumber: 41
+                                                            }, this),
+                                                            "Request Leave"
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/student/dashboard/page.tsx",
+                                                        lineNumber: 411,
+                                                        columnNumber: 37
+                                                    }, this)
+                                                }, void 0, false, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 374,
+                                                    lineNumber: 410,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
@@ -1489,53 +1634,53 @@ function StudentDashboardContent() {
                                                             className: "w-1.5 h-1.5 rounded-full bg-green-500/50"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                                            lineNumber: 379,
+                                                            lineNumber: 417,
                                                             columnNumber: 37
                                                         }, this),
                                                         "Help Desk"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/student/dashboard/page.tsx",
-                                                    lineNumber: 378,
+                                                    lineNumber: 416,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/student/dashboard/page.tsx",
-                                            lineNumber: 369,
+                                            lineNumber: 405,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/student/dashboard/page.tsx",
-                                        lineNumber: 368,
+                                        lineNumber: 404,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/student/dashboard/page.tsx",
-                                lineNumber: 361,
+                                lineNumber: 397,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/student/dashboard/page.tsx",
-                        lineNumber: 306,
+                        lineNumber: 336,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/student/dashboard/page.tsx",
-                lineNumber: 149,
+                lineNumber: 155,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/student/dashboard/page.tsx",
-        lineNumber: 113,
+        lineNumber: 119,
         columnNumber: 9
     }, this);
 }
-_s(StudentDashboardContent, "jAgZuCDovhBYu//GUeOcnHIi8Vg=", false, function() {
+_s(StudentDashboardContent, "11Z8wCfq3a02O2j7YzRgM9ulISA=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSearchParams"]

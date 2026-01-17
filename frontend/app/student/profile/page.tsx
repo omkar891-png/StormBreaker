@@ -10,25 +10,32 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Camera, Download, Shield } from "lucide-react"
 
 export default function StudentProfilePage() {
-    // Mock Data - replaced with partial real data fetch if needed
-    // For now, let's keep the mock data for display but implement the upload logic
-    const [student, setStudent] = useState({
-        name: "Alex Doe", // This should come from API /students/me
-        studentId: "STU-2024-001",
-        course: "Computer Science",
-        year: "2nd Year",
-        section: "A",
-        documentType: "National ID",
-        documentNumber: "ABC-12345-XYZ",
-        email: "alex.doe@university.edu",
-        password: "TempPassword123!",
-        profileImage: "/avatars/01.png"
-    })
-
+    const [student, setStudent] = useState<any>(null)
+    const [loading, setLoading] = useState(true)
     const [isUploading, setIsUploading] = useState(false)
 
-    // Hidden file input ref
-    const fileInputRef = useState<HTMLInputElement | null>(null)
+    const fetchProfile = async () => {
+        const token = localStorage.getItem('token')
+        if (!token) return
+
+        try {
+            const res = await fetch('/api/reports/student-stats', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            if (res.ok) {
+                const data = await res.json()
+                setStudent(data)
+            }
+        } catch (error) {
+            console.error("Error fetching profile:", error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useState(() => {
+        fetchProfile()
+    })
 
     const triggerUpload = () => {
         document.getElementById('file-upload')?.click()
@@ -45,7 +52,7 @@ export default function StudentProfilePage() {
             formData.append('file', file)
 
             const token = localStorage.getItem('token')
-            const res = await fetch('http://127.0.0.1:8000/students/upload-face', {
+            const res = await fetch('/api/students/upload-face', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -56,7 +63,7 @@ export default function StudentProfilePage() {
             if (!res.ok) throw new Error('Upload failed')
 
             alert("Face registered successfully!")
-            // Optionally refresh profile image here
+            fetchProfile() // Refresh data to get new image URL
 
         } catch (err) {
             console.error(err)
@@ -65,6 +72,9 @@ export default function StudentProfilePage() {
             setIsUploading(false)
         }
     }
+
+    if (loading) return <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground">Loading Profile...</div>
+    if (!student) return <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground">Profile Not Found</div>
 
     return (
         <div className="min-h-screen bg-background relative overflow-hidden flex flex-col">
@@ -107,8 +117,8 @@ export default function StudentProfilePage() {
                         <CardHeader className="text-center">
                             <div className="relative mx-auto w-32 h-32 mb-4 group">
                                 <Avatar className="w-full h-full border-4 border-primary/20 group-hover:border-primary transition-colors">
-                                    <AvatarImage src={student.profileImage} />
-                                    <AvatarFallback>AD</AvatarFallback>
+                                    <AvatarImage src={student.profile_picture || "/avatars/01.png"} />
+                                    <AvatarFallback>{student.full_name?.substring(0, 2).toUpperCase()}</AvatarFallback>
                                 </Avatar>
                                 <button
                                     onClick={triggerUpload}
@@ -118,8 +128,8 @@ export default function StudentProfilePage() {
                                     <Camera className="h-4 w-4" />
                                 </button>
                             </div>
-                            <CardTitle>{student.name}</CardTitle>
-                            <CardDescription>{student.studentId}</CardDescription>
+                            <CardTitle>{student.full_name}</CardTitle>
+                            <CardDescription>{student.roll_number}</CardDescription>
                             <div className="mt-4 px-3 py-1 bg-primary/10 rounded-full text-xs font-medium text-primary inline-block">
                                 Active Student
                             </div>
@@ -128,8 +138,10 @@ export default function StudentProfilePage() {
                             <div className="bg-white/5 p-4 rounded-lg border border-white/5">
                                 <p className="text-xs text-muted-foreground mb-1">Attendance Rate</p>
                                 <div className="flex items-end justify-between">
-                                    <span className="text-2xl font-bold text-primary">85%</span>
-                                    <span className="text-xs text-green-400">Good</span>
+                                    <span className="text-2xl font-bold text-primary">{student.attendance_percentage}%</span>
+                                    <span className="text-xs text-green-400">
+                                        {student.attendance_percentage > 75 ? "Good" : "Warning"}
+                                    </span>
                                 </div>
                             </div>
                         </CardContent>
@@ -150,19 +162,19 @@ export default function StudentProfilePage() {
                             <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Full Name</Label>
-                                    <Input value={student.name} readOnly className="bg-background/50" />
+                                    <Input value={student.full_name} readOnly className="bg-background/50" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Course / Major</Label>
-                                    <Input value={student.course} readOnly className="bg-background/50" />
+                                    <Label>Department</Label>
+                                    <Input value={student.department} readOnly className="bg-background/50" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Year & Section</Label>
-                                    <Input value={`${student.year} - Section ${student.section}`} readOnly className="bg-background/50" />
+                                    <Label>Year & Division</Label>
+                                    <Input value={`${student.year} - Div ${student.division}`} readOnly className="bg-background/50" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Official Email</Label>
-                                    <Input value={student.email} readOnly className="bg-background/50" />
+                                    <Label>Roll Number</Label>
+                                    <Input value={student.roll_number} readOnly className="bg-background/50" />
                                 </div>
                             </CardContent>
                         </Card>

@@ -13,13 +13,15 @@ import {
     MessageSquare,
     Settings,
     LogOut,
-    UserCheck
+    UserCheck,
+    BookCheck
 } from "lucide-react"
 
 const sidebarItems = [
     { label: "Dashboard", href: "/faculty/dashboard", icon: LayoutDashboard },
     { label: "Live Lecture", href: "/faculty/lecture/live", icon: Presentation },
     { label: "Attendance History", href: "/faculty/attendance", icon: ClipboardCheck },
+    { label: "Assignments", href: "/faculty/assignments", icon: BookCheck },
     { label: "Student Marks", href: "/faculty/marks", icon: FileText }, // Future
     { label: "Notifications", href: "/faculty/notifications", icon: Bell }, // Future
     { label: "My Profile", href: "/faculty/profile", icon: UserCheck },

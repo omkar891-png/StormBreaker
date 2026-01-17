@@ -208,66 +208,86 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 ;
 ;
 ;
-// Mock Students Data
-const MOCK_STUDENTS = [
-    {
-        id: "CS01",
-        name: "Alex Doe",
-        img: "/avatars/01.png",
-        status: "pending"
-    },
-    {
-        id: "CS02",
-        name: "John Smith",
-        img: "/avatars/02.png",
-        status: "pending"
-    },
-    {
-        id: "CS03",
-        name: "Sarah Connor",
-        img: "/avatars/03.png",
-        status: "pending"
-    },
-    {
-        id: "CS04",
-        name: "Mike Ross",
-        img: "/avatars/04.png",
-        status: "pending"
-    },
-    {
-        id: "CS05",
-        name: "Rachel Green",
-        img: "/avatars/05.png",
-        status: "pending"
-    },
-    {
-        id: "CS06",
-        name: "Harvey Specter",
-        img: "/avatars/06.png",
-        status: "pending"
-    },
-    {
-        id: "CS07",
-        name: "Louis Litt",
-        img: "/avatars/07.png",
-        status: "pending"
-    },
-    {
-        id: "CS08",
-        name: "Donna Paulsen",
-        img: "/avatars/08.png",
-        status: "pending"
-    }
-];
+// Students will be fetched or added dynamically
+const INITIAL_STUDENTS = [];
 function LiveLecturePage() {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Suspense"], {
+        fallback: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "p-6 text-center",
+            children: "Loading session..."
+        }, void 0, false, {
+            fileName: "[project]/app/faculty/lecture/live/page.tsx",
+            lineNumber: 26,
+            columnNumber: 35
+        }, void 0),
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(LiveLectureContent, {}, void 0, false, {
+            fileName: "[project]/app/faculty/lecture/live/page.tsx",
+            lineNumber: 27,
+            columnNumber: 13
+        }, this)
+    }, void 0, false, {
+        fileName: "[project]/app/faculty/lecture/live/page.tsx",
+        lineNumber: 26,
+        columnNumber: 9
+    }, this);
+}
+function LiveLectureContent() {
     const searchParams = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useSearchParams"])();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRouter"])();
     // Session Details from URL
     const dept = searchParams.get('dept') || "CS";
     const classYear = searchParams.get('class') || "SY";
-    const div = searchParams.get('div') || "A";
     const subject = searchParams.get('sub') || "Unknown Subject";
-    const [students, setStudents] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"](MOCK_STUDENTS);
+    const sessionId = searchParams.get('session_id');
+    const [students, setStudents] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"]([]);
+    const fetchStudents = async ()=>{
+        if (!sessionId) return;
+        const token = localStorage.getItem("token");
+        try {
+            // 1. Fetch ALL students in this class
+            const studentsRes = await fetch(`/api/students/?dept=${dept}&year=${classYear}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            // 2. Fetch Attendance for this SESSION
+            const attendanceRes = await fetch(`/api/attendance/?session_id=${sessionId}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            if (studentsRes.ok && attendanceRes.ok) {
+                const allClassStudents = await studentsRes.json();
+                const attendanceLogs = await attendanceRes.json();
+                // Create a map of present IDs
+                const presentMap = new Map();
+                attendanceLogs.forEach((log)=>{
+                    presentMap.set(log.student.roll_number, log);
+                });
+                // Merge: If in presentMap -> status 'present', else 'absent'
+                const mergedList = allClassStudents.map((s)=>{
+                    const record = presentMap.get(s.roll_number);
+                    return {
+                        id: s.roll_number,
+                        name: s.full_name,
+                        img: s.profile_picture || "/avatars/01.png",
+                        status: record ? 'present' : 'absent',
+                        time: record ? new Date(record.timestamp).toLocaleTimeString() : '-'
+                    };
+                });
+                setStudents(mergedList);
+            }
+        } catch (error) {
+            console.error("Error fetching students:", error);
+        }
+    };
+    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"](()=>{
+        fetchStudents();
+        const interval = setInterval(fetchStudents, 5000);
+        return ()=>clearInterval(interval);
+    }, [
+        sessionId
+    ]);
     const [isScanning, setIsScanning] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"](false);
     const [sessionActive, setSessionActive] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"](true);
     // Stats
@@ -282,33 +302,19 @@ function LiveLecturePage() {
                     status: newStatus
                 } : s));
     };
-    // Simulate Face Scan
-    const simulateScan = ()=>{
-        if (!sessionActive) return;
-        setIsScanning(true);
-        // Randomly mark 2-3 pending students as present
-        setTimeout(()=>{
-            setStudents((prev)=>{
-                const pending = prev.filter((s)=>s.status === 'pending');
-                if (pending.length === 0) return prev;
-                const verified = [];
-                const indices = new Set();
-                while(indices.size < Math.min(3, pending.length)){
-                    indices.add(Math.floor(Math.random() * pending.length));
-                }
-                // Create a map of IDs to update
-                const idsToUpdate = new Set(Array.from(indices).map((i)=>pending[i].id));
-                return prev.map((s)=>idsToUpdate.has(s.id) ? {
-                        ...s,
-                        status: 'present'
-                    } : s);
-            });
-            setIsScanning(false);
-        }, 2000);
-    };
-    const endSession = ()=>{
+    const endSession = async ()=>{
         const confirmEnd = window.confirm("Are you sure you want to end this session? All pending students will be marked Absent.");
         if (confirmEnd) {
+            const sessionId = searchParams.get('session_id');
+            if (sessionId) {
+                const token = localStorage.getItem("token");
+                await fetch(`/api/sessions/${sessionId}/end`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+            }
             setStudents((prev)=>prev.map((s)=>s.status === 'pending' ? {
                         ...s,
                         status: 'absent'
@@ -333,7 +339,7 @@ function LiveLecturePage() {
                                         children: "LIVE"
                                     }, void 0, false, {
                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                        lineNumber: 100,
+                                        lineNumber: 128,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -341,13 +347,13 @@ function LiveLecturePage() {
                                         children: subject
                                     }, void 0, false, {
                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                        lineNumber: 101,
+                                        lineNumber: 129,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                lineNumber: 99,
+                                lineNumber: 127,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -357,28 +363,26 @@ function LiveLecturePage() {
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                        lineNumber: 104,
+                                        lineNumber: 132,
                                         columnNumber: 25
                                     }, this),
                                     " ",
                                     classYear,
                                     "-",
                                     dept,
-                                    " / Div ",
-                                    div,
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         className: "text-white/20",
                                         children: "|"
                                     }, void 0, false, {
                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                        lineNumber: 105,
+                                        lineNumber: 133,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__["Clock"], {
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                        lineNumber: 106,
+                                        lineNumber: 134,
                                         columnNumber: 25
                                     }, this),
                                     " Started at ",
@@ -389,13 +393,13 @@ function LiveLecturePage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                lineNumber: 103,
+                                lineNumber: 131,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                        lineNumber: 98,
+                        lineNumber: 126,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -405,27 +409,26 @@ function LiveLecturePage() {
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                     variant: "secondary",
                                     className: "gap-2",
-                                    onClick: simulateScan,
                                     disabled: isScanning,
                                     children: [
                                         isScanning ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
                                             className: "h-4 w-4 animate-spin"
                                         }, void 0, false, {
                                             fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                            lineNumber: 114,
+                                            lineNumber: 142,
                                             columnNumber: 47
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$scan$2d$face$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ScanFace$3e$__["ScanFace"], {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                            lineNumber: 114,
+                                            lineNumber: 142,
                                             columnNumber: 96
                                         }, this),
-                                        isScanning ? "Scanning..." : "Simulate Face Scan"
+                                        isScanning ? "Scanning..." : "Start Face Scan"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                    lineNumber: 113,
+                                    lineNumber: 141,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -437,14 +440,14 @@ function LiveLecturePage() {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                            lineNumber: 118,
+                                            lineNumber: 146,
                                             columnNumber: 33
                                         }, this),
                                         " End Session"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                    lineNumber: 117,
+                                    lineNumber: 145,
                                     columnNumber: 29
                                 }, this)
                             ]
@@ -456,25 +459,25 @@ function LiveLecturePage() {
                                     className: "h-4 w-4"
                                 }, void 0, false, {
                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                    lineNumber: 123,
+                                    lineNumber: 151,
                                     columnNumber: 29
                                 }, this),
                                 " Finish & Save"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                            lineNumber: 122,
+                            lineNumber: 150,
                             columnNumber: 25
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                        lineNumber: 110,
+                        lineNumber: 138,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                lineNumber: 97,
+                lineNumber: 125,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -496,7 +499,7 @@ function LiveLecturePage() {
                                                     children: present
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                    lineNumber: 139,
+                                                    lineNumber: 167,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -504,18 +507,18 @@ function LiveLecturePage() {
                                                     children: "Present"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                    lineNumber: 140,
+                                                    lineNumber: 168,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                            lineNumber: 138,
+                                            lineNumber: 166,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                        lineNumber: 137,
+                                        lineNumber: 165,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -528,7 +531,7 @@ function LiveLecturePage() {
                                                     children: absent
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                    lineNumber: 145,
+                                                    lineNumber: 173,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -536,18 +539,18 @@ function LiveLecturePage() {
                                                     children: "Absent"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                    lineNumber: 146,
+                                                    lineNumber: 174,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                            lineNumber: 144,
+                                            lineNumber: 172,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                        lineNumber: 143,
+                                        lineNumber: 171,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -560,7 +563,7 @@ function LiveLecturePage() {
                                                     children: total
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                    lineNumber: 151,
+                                                    lineNumber: 179,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -568,24 +571,24 @@ function LiveLecturePage() {
                                                     children: "Total"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                    lineNumber: 152,
+                                                    lineNumber: 180,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                            lineNumber: 150,
+                                            lineNumber: 178,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                        lineNumber: 149,
+                                        lineNumber: 177,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                lineNumber: 136,
+                                lineNumber: 164,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -609,20 +612,20 @@ function LiveLecturePage() {
                                                                         src: student.img
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                                        lineNumber: 174,
+                                                                        lineNumber: 202,
                                                                         columnNumber: 45
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AvatarFallback"], {
                                                                         children: "S"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                                        lineNumber: 175,
+                                                                        lineNumber: 203,
                                                                         columnNumber: 45
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                                lineNumber: 171,
+                                                                lineNumber: 199,
                                                                 columnNumber: 41
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -632,7 +635,7 @@ function LiveLecturePage() {
                                                                         children: student.name
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                                        lineNumber: 178,
+                                                                        lineNumber: 206,
                                                                         columnNumber: 45
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -640,19 +643,19 @@ function LiveLecturePage() {
                                                                         children: student.id
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                                        lineNumber: 179,
+                                                                        lineNumber: 207,
                                                                         columnNumber: 45
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                                lineNumber: 177,
+                                                                lineNumber: 205,
                                                                 columnNumber: 41
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                        lineNumber: 170,
+                                                        lineNumber: 198,
                                                         columnNumber: 37
                                                     }, this),
                                                     sessionActive && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -666,12 +669,12 @@ function LiveLecturePage() {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                                    lineNumber: 191,
+                                                                    lineNumber: 219,
                                                                     columnNumber: 49
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                                lineNumber: 186,
+                                                                lineNumber: 214,
                                                                 columnNumber: 45
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -682,48 +685,48 @@ function LiveLecturePage() {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                                    lineNumber: 198,
+                                                                    lineNumber: 226,
                                                                     columnNumber: 49
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                                lineNumber: 193,
+                                                                lineNumber: 221,
                                                                 columnNumber: 45
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                        lineNumber: 185,
+                                                        lineNumber: 213,
                                                         columnNumber: 41
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                lineNumber: 169,
+                                                lineNumber: 197,
                                                 columnNumber: 33
                                             }, this),
                                             student.status === 'present' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "absolute top-2 right-2 h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_theme(colors.green.500)]"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                lineNumber: 204,
+                                                lineNumber: 232,
                                                 columnNumber: 37
                                             }, this)
                                         ]
                                     }, student.id, true, {
                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                        lineNumber: 160,
+                                        lineNumber: 188,
                                         columnNumber: 29
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                lineNumber: 158,
+                                lineNumber: 186,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                        lineNumber: 133,
+                        lineNumber: 161,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -735,12 +738,12 @@ function LiveLecturePage() {
                                     children: "Activity Log"
                                 }, void 0, false, {
                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                    lineNumber: 214,
+                                    lineNumber: 242,
                                     columnNumber: 25
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                lineNumber: 213,
+                                lineNumber: 241,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -753,14 +756,14 @@ function LiveLecturePage() {
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                lineNumber: 219,
+                                                lineNumber: 247,
                                                 columnNumber: 33
                                             }, this),
                                             " Processing face data..."
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                        lineNumber: 218,
+                                        lineNumber: 246,
                                         columnNumber: 29
                                     }, this),
                                     students.filter((s)=>s.status !== 'pending').reverse().map((s, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -774,7 +777,7 @@ function LiveLecturePage() {
                                                     })
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                    lineNumber: 224,
+                                                    lineNumber: 252,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -784,7 +787,7 @@ function LiveLecturePage() {
                                                             children: s.name
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                            lineNumber: 226,
+                                                            lineNumber: 254,
                                                             columnNumber: 37
                                                         }, this),
                                                         " was marked ",
@@ -793,20 +796,20 @@ function LiveLecturePage() {
                                                             children: s.status
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                            lineNumber: 226,
+                                                            lineNumber: 254,
                                                             columnNumber: 92
                                                         }, this),
                                                         "."
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                                    lineNumber: 225,
+                                                    lineNumber: 253,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, i, true, {
                                             fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                            lineNumber: 223,
+                                            lineNumber: 251,
                                             columnNumber: 29
                                         }, this)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -814,31 +817,31 @@ function LiveLecturePage() {
                                         children: "Session started..."
                                     }, void 0, false, {
                                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                        lineNumber: 230,
+                                        lineNumber: 258,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                                lineNumber: 216,
+                                lineNumber: 244,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                        lineNumber: 212,
+                        lineNumber: 240,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/faculty/lecture/live/page.tsx",
-                lineNumber: 130,
+                lineNumber: 158,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/faculty/lecture/live/page.tsx",
-        lineNumber: 94,
+        lineNumber: 122,
         columnNumber: 9
     }, this);
 }
@@ -846,13 +849,13 @@ function LiveLecturePage() {
 "[project]/node_modules/@radix-ui/react-context/dist/index.mjs [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
-// packages/react/context/src/createContext.tsx
 __turbopack_context__.s([
     "createContext",
     ()=>createContext2,
     "createContextScope",
     ()=>createContextScope
 ]);
+// packages/react/context/src/createContext.tsx
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-runtime.js [app-ssr] (ecmascript)");
 ;
@@ -966,11 +969,11 @@ function composeContextScopes(...scopes) {
 "[project]/node_modules/@radix-ui/react-use-callback-ref/dist/index.mjs [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
-// packages/react/use-callback-ref/src/useCallbackRef.tsx
 __turbopack_context__.s([
     "useCallbackRef",
     ()=>useCallbackRef
 ]);
+// packages/react/use-callback-ref/src/useCallbackRef.tsx
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
 ;
 function useCallbackRef(callback) {
@@ -986,11 +989,11 @@ function useCallbackRef(callback) {
 "[project]/node_modules/@radix-ui/react-use-layout-effect/dist/index.mjs [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
-// packages/react/use-layout-effect/src/useLayoutEffect.tsx
 __turbopack_context__.s([
     "useLayoutEffect",
     ()=>useLayoutEffect2
 ]);
+// packages/react/use-layout-effect/src/useLayoutEffect.tsx
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
 ;
 var useLayoutEffect2 = Boolean(globalThis?.document) ? __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useLayoutEffect"] : ()=>{};
@@ -1005,7 +1008,6 @@ module.exports = __turbopack_context__.r("[project]/node_modules/next/dist/serve
 "[project]/node_modules/@radix-ui/react-primitive/dist/index.mjs [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
-// packages/react/primitive/src/Primitive.tsx
 __turbopack_context__.s([
     "Primitive",
     ()=>Primitive,
@@ -1014,6 +1016,7 @@ __turbopack_context__.s([
     "dispatchDiscreteCustomEvent",
     ()=>dispatchDiscreteCustomEvent
 ]);
+// packages/react/primitive/src/Primitive.tsx
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$dom$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-dom.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$slot$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@radix-ui/react-slot/dist/index.mjs [app-ssr] (ecmascript)");
@@ -1195,16 +1198,16 @@ var Fallback = AvatarFallback;
 "[project]/node_modules/lucide-react/dist/esm/icons/users.js [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
+__turbopack_context__.s([
+    "default",
+    ()=>Users
+]);
 /**
  * @license lucide-react v0.454.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ __turbopack_context__.s([
-    "default",
-    ()=>Users
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/createLucideIcon.js [app-ssr] (ecmascript)");
+ */ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/createLucideIcon.js [app-ssr] (ecmascript)");
 ;
 const Users = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])("Users", [
     [
@@ -1253,16 +1256,16 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 "[project]/node_modules/lucide-react/dist/esm/icons/scan-face.js [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
+__turbopack_context__.s([
+    "default",
+    ()=>ScanFace
+]);
 /**
  * @license lucide-react v0.454.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ __turbopack_context__.s([
-    "default",
-    ()=>ScanFace
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/createLucideIcon.js [app-ssr] (ecmascript)");
+ */ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/createLucideIcon.js [app-ssr] (ecmascript)");
 ;
 const ScanFace = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])("ScanFace", [
     [
@@ -1330,16 +1333,16 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 "[project]/node_modules/lucide-react/dist/esm/icons/circle-check.js [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
+__turbopack_context__.s([
+    "default",
+    ()=>CircleCheck
+]);
 /**
  * @license lucide-react v0.454.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ __turbopack_context__.s([
-    "default",
-    ()=>CircleCheck
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/createLucideIcon.js [app-ssr] (ecmascript)");
+ */ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/createLucideIcon.js [app-ssr] (ecmascript)");
 ;
 const CircleCheck = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])("CircleCheck", [
     [
@@ -1374,16 +1377,16 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 "[project]/node_modules/lucide-react/dist/esm/icons/circle-x.js [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
+__turbopack_context__.s([
+    "default",
+    ()=>CircleX
+]);
 /**
  * @license lucide-react v0.454.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ __turbopack_context__.s([
-    "default",
-    ()=>CircleX
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/createLucideIcon.js [app-ssr] (ecmascript)");
+ */ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/createLucideIcon.js [app-ssr] (ecmascript)");
 ;
 const CircleX = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])("CircleX", [
     [
@@ -1425,16 +1428,16 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 "[project]/node_modules/lucide-react/dist/esm/icons/clock.js [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
+__turbopack_context__.s([
+    "default",
+    ()=>Clock
+]);
 /**
  * @license lucide-react v0.454.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ __turbopack_context__.s([
-    "default",
-    ()=>Clock
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/createLucideIcon.js [app-ssr] (ecmascript)");
+ */ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/createLucideIcon.js [app-ssr] (ecmascript)");
 ;
 const Clock = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])("Clock", [
     [
@@ -1469,16 +1472,16 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 "[project]/node_modules/lucide-react/dist/esm/icons/refresh-cw.js [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
+__turbopack_context__.s([
+    "default",
+    ()=>RefreshCw
+]);
 /**
  * @license lucide-react v0.454.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */ __turbopack_context__.s([
-    "default",
-    ()=>RefreshCw
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/createLucideIcon.js [app-ssr] (ecmascript)");
+ */ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/createLucideIcon.js [app-ssr] (ecmascript)");
 ;
 const RefreshCw = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$createLucideIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])("RefreshCw", [
     [

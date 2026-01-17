@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
-import { ScanFace, CreditCard, CheckCircle2, Clock, MapPin } from "lucide-react"
+import { ScanFace, CreditCard, CheckCircle2, Clock, MapPin, AlertTriangle } from "lucide-react"
 
 export default function StudentDashboard() {
     return (
@@ -19,65 +19,70 @@ export default function StudentDashboard() {
 }
 
 function StudentDashboardContent() {
-    const [student, setStudent] = React.useState<any>(null)
+    const [studentProfile, setStudentProfile] = React.useState<any>(null)
+    const [stats, setStats] = React.useState<any>(null)
+    const [activeSession, setActiveSession] = React.useState<any>(null)
     const [loading, setLoading] = React.useState(true)
     const router = useRouter()
     const searchParams = useSearchParams()
 
     // Live Lecture State
-    const [isLectureActive, setIsLectureActive] = React.useState(true)
     const [attendanceStatus, setAttendanceStatus] = React.useState<"idle" | "verifying" | "submitted">("idle")
     const [verificationMethod, setVerificationMethod] = React.useState("face")
     const [submittedTime, setSubmittedTime] = React.useState("")
 
-    React.useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const token = localStorage.getItem("token")
-                if (!token) {
-                    router.push("/auth/login")
-                    return
-                }
-
-                const response = await fetch("http://localhost:8000/students/me", {
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
-                })
-
-                if (response.status === 401) {
-                    router.push("/auth/login")
-                    return
-                }
-
-                if (!response.ok) throw new Error("Failed to fetch profile")
-
-                const data = await response.json()
-
-                // Check if profile is complete
-                if (!data.is_profile_complete) {
-                    router.push("/student/onboarding")
-                    return
-                }
-
-                setStudent({
-                    name: data.full_name,
-                    id: data.roll_number,
-                    course: data.department,
-                    attendance: 0, // Default for now
-                    lastMarked: "Never",
-                    performance: "N/A"
-                })
-            } catch (error) {
-                console.error("Error fetching profile:", error)
-                // Optionally handle error
-            } finally {
-                setLoading(false)
-            }
+    const fetchData = React.useCallback(async () => {
+        const token = localStorage.getItem("token")
+        if (!token) {
+            router.push("/auth/login")
+            return
         }
 
-        fetchProfile()
+        try {
+            const headers = { "Authorization": `Bearer ${token}` }
+
+            // 1. Fetch Student Stats & Profile Info
+            const statsRes = await fetch("/api/reports/student-stats", { headers })
+            if (statsRes.status === 401) {
+                router.push("/auth/login")
+                return
+            }
+            if (!statsRes.ok) throw new Error("Failed to fetch statistics")
+            const statsData = await statsRes.json()
+            setStats(statsData)
+            setStudentProfile(statsData)
+
+            // Check if profile is complete
+            if (!statsData.is_profile_complete) {
+                router.push("/student/onboarding")
+                return
+            }
+
+            // 2. Fetch Active Session for this student's class (ignore division as per request)
+            const sessionsRes = await fetch(`/api/sessions/active?dept=${statsData.department}&year=${statsData.year}`, { headers })
+            if (sessionsRes.ok) {
+                const sessions = await sessionsRes.json()
+                // Just take the first active session for now
+                if (sessions.length > 0) {
+                    setActiveSession(sessions[0])
+                } else {
+                    setActiveSession(null)
+                }
+            }
+
+        } catch (error) {
+            console.error("Error fetching dashboard data:", error)
+        } finally {
+            setLoading(false)
+        }
     }, [router])
+
+    React.useEffect(() => {
+        fetchData()
+        // Poll for active sessions every 5 seconds for real-time responsiveness
+        const interval = setInterval(fetchData, 5000)
+        return () => clearInterval(interval)
+    }, [fetchData])
 
     React.useEffect(() => {
         if (searchParams.get('verified') === 'true') {
@@ -87,27 +92,28 @@ function StudentDashboardContent() {
     }, [searchParams])
 
     const handleMarkAttendance = () => {
+        if (!activeSession) return;
+
         if (verificationMethod === 'face') {
-            router.push('/student/attendance/face')
+            router.push(`/student/attendance/face?subject=${encodeURIComponent(activeSession.subject)}&session_id=${activeSession.id}`)
             return
         }
         if (verificationMethod === 'idcard') {
-            router.push('/student/attendance/id-card')
+            router.push(`/student/attendance/id-card?subject=${encodeURIComponent(activeSession.subject)}&session_id=${activeSession.id}`)
             return
         }
-
-        setAttendanceStatus("verifying")
-        setTimeout(() => {
-            setAttendanceStatus("submitted")
-            setSubmittedTime(new Date().toLocaleTimeString())
-        }, 2500)
     }
 
     if (loading) {
-        return <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground">Loading specific student profile...</div>
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-background text-muted-foreground gap-4">
+                <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                <p className="animate-pulse">Loading Your Dashboard...</p>
+            </div>
+        )
     }
 
-    if (!student) return null;
+    if (!studentProfile) return null;
 
     return (
         <div className="min-h-screen bg-background relative overflow-hidden">
@@ -128,13 +134,13 @@ function StudentDashboardContent() {
 
                         <div className="flex items-center gap-4">
                             <div className="text-right hidden sm:block">
-                                <p className="text-sm font-medium leading-none">{student.name}</p>
-                                <p className="text-xs text-muted-foreground">{student.id}</p>
+                                <p className="text-sm font-medium leading-none">{studentProfile.full_name}</p>
+                                <p className="text-xs text-muted-foreground">{studentProfile.roll_number}</p>
                             </div>
                             <Link href="/student/profile">
                                 <Avatar className="h-9 w-9 border-2 border-primary/20 cursor-pointer hover:border-primary transition-colors">
-                                    <AvatarImage src="/avatars/01.png" alt={student.name} />
-                                    <AvatarFallback>AD</AvatarFallback>
+                                    <AvatarImage src={studentProfile.profile_picture || "/avatars/01.png"} alt={studentProfile.full_name} />
+                                    <AvatarFallback>{studentProfile.full_name?.substring(0, 2).toUpperCase()}</AvatarFallback>
                                 </Avatar>
                             </Link>
                             <Button variant="ghost" size="sm" className="hidden sm:flex" asChild>
@@ -148,9 +154,31 @@ function StudentDashboardContent() {
             {/* Main Content */}
             <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 animate-fade-in">
 
+                {/* --- SMART ALERT FOR DEFAULTERS --- */}
+                {(stats?.attendance_percentage || 0) < 75 && (
+                    <Card className="border-l-4 border-l-red-500 bg-red-500/10 border-red-500/20 shadow-lg shadow-red-500/5">
+                        <CardContent className="p-6 flex items-start gap-4">
+                            <div className="p-3 bg-red-500/20 rounded-full shrink-0 animate-pulse">
+                                <AlertTriangle className="h-6 w-6 text-red-500" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-red-500 mb-1">Attendance Alert: Action Required</h3>
+                                <p className="text-muted-foreground mb-3">
+                                    Your current attendance is <span className="font-bold text-red-400">{stats?.attendance_percentage}%</span>,
+                                    which is below the mandatory 75% threshold. You are currently on the defaulter list.
+                                </p>
+                                <div className="flex gap-2">
+                                    <Button variant="destructive" size="sm" className="bg-red-500 hover:bg-red-600 text-white border-none shadow-lg shadow-red-500/20">Contact HOD</Button>
+                                    <Button variant="outline" size="sm" className="border-red-500/30 hover:bg-red-500/10 text-red-400 hover:text-red-300">View Detention Policy</Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
                 {/* --- LIVE LECTURE STATUS SECTION --- */}
-                <Card className={`border-2 shadow-2xl relative overflow-hidden ${isLectureActive ? 'border-indigo-500/50 shadow-indigo-500/10' : 'border-white/10'}`}>
-                    {isLectureActive && (
+                <Card className={`border-2 shadow-2xl relative overflow-hidden ${activeSession ? 'border-indigo-500/50 shadow-indigo-500/10' : 'border-white/10'}`}>
+                    {activeSession && (
                         <div className="absolute top-0 right-0 p-4">
                             <span className="relative flex h-3 w-3">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -160,32 +188,30 @@ function StudentDashboardContent() {
                     )}
                     <CardHeader>
                         <div className="flex items-center gap-3 mb-2">
-                            <Badge variant={isLectureActive ? "default" : "secondary"} className={isLectureActive ? "bg-indigo-600 hover:bg-indigo-700" : ""}>
-                                {isLectureActive ? "LIVE LECTURE ACTIVE" : "NO ACTIVE LECTURE"}
+                            <Badge variant={activeSession ? "default" : "secondary"} className={activeSession ? "bg-indigo-600 hover:bg-indigo-700" : ""}>
+                                {activeSession ? "LIVE LECTURE ACTIVE" : "NO ACTIVE LECTURE"}
                             </Badge>
-                            {isLectureActive && <span className="text-xs text-indigo-400 font-mono animate-pulse">Session ID: LEC-8921</span>}
+                            {activeSession && <span className="text-xs text-indigo-400 font-mono animate-pulse">Session ID: LEC-{activeSession.id}</span>}
                         </div>
                         <CardTitle className="text-2xl">
-                            {isLectureActive ? "Data Structures & Algorithms" : "You're all caught up!"}
+                            {activeSession ? activeSession.subject : "You're all caught up!"}
                         </CardTitle>
                         <CardDescription>
-                            {isLectureActive
-                                ? "Prof. John Doe • Computer Science • Sy-CS-A"
+                            {activeSession
+                                ? `Dept: ${activeSession.department} • Year: ${activeSession.year} • Div: ${activeSession.division}`
                                 : "Check back later for your next scheduled session."}
                         </CardDescription>
                     </CardHeader>
-                    {isLectureActive && (
+                    {activeSession && (
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3 text-sm text-muted-foreground bg-white/5 p-3 rounded-lg border border-white/10">
                                     <Clock className="h-4 w-4 text-indigo-400" />
-                                    <span>Started: 10:00 AM</span>
-                                    <span className="text-white/20">|</span>
-                                    <span>Ends: 11:00 AM</span>
+                                    <span>Started: {new Date(activeSession.start_time).toLocaleTimeString()}</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-sm text-muted-foreground bg-white/5 p-3 rounded-lg border border-white/10">
                                     <MapPin className="h-4 w-4 text-indigo-400" />
-                                    <span>Room 304, Main Building</span>
+                                    <span>Live in Classroom</span>
                                 </div>
                             </div>
 
@@ -241,7 +267,7 @@ function StudentDashboardContent() {
                             </div>
                         </CardContent>
                     )}
-                    {!isLectureActive && (
+                    {!activeSession && (
                         <CardFooter>
                             <Button disabled className="w-full opacity-50 cursor-not-allowed">No Active Lecture Right Now</Button>
                         </CardFooter>
@@ -258,15 +284,17 @@ function StudentDashboardContent() {
                         <CardContent>
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <div className="text-4xl font-bold text-primary">{student.attendance}%</div>
-                                    <p className="text-xs text-muted-foreground mt-1">Last marked: {student.lastMarked}</p>
+                                    <div className="text-4xl font-bold text-primary">{stats?.attendance_percentage || 0}%</div>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        Last: {stats?.last_marked ? `${stats.last_marked.subject} at ${new Date(stats.last_marked.timestamp).toLocaleTimeString()}` : "Never"}
+                                    </p>
                                 </div>
                                 <div className="h-16 w-16 rounded-full border-4 border-primary/30 flex items-center justify-center border-t-primary">
-                                    <span className="text-xs font-bold">{student.attendance}%</span>
+                                    <span className="text-xs font-bold">{stats?.attendance_percentage || 0}%</span>
                                 </div>
                             </div>
                             <div className="mt-4 h-2 w-full bg-secondary/30 rounded-full overflow-hidden">
-                                <div className="h-full bg-primary" style={{ width: `${student.attendance}%` }}></div>
+                                <div className="h-full bg-primary" style={{ width: `${stats?.attendance_percentage || 0}%` }}></div>
                             </div>
                         </CardContent>
                     </Card>
@@ -279,8 +307,10 @@ function StudentDashboardContent() {
                         <CardContent>
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <div className="text-4xl font-bold text-accent">{student.performance}</div>
-                                    <p className="text-xs text-muted-foreground mt-1">Based on recent exams</p>
+                                    <div className="text-4xl font-bold text-accent">
+                                        {(stats?.attendance_percentage || 0) > 75 ? "Excellent" : (stats?.attendance_percentage || 0) > 60 ? "Good" : "Needs Attention"}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1">Based on attendance</p>
                                 </div>
                                 <div className="text-4xl">🏆</div>
                             </div>
@@ -315,18 +345,24 @@ function StudentDashboardContent() {
                         </CardHeader>
                         <CardContent>
                             <ul className="space-y-3">
-                                <li className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-primary/50"></span>
-                                    Attendance History
-                                </li>
-                                <li className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-primary/50"></span>
-                                    View Reports
-                                </li>
-                                <li className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-primary/50"></span>
-                                    Class Schedule
-                                </li>
+                                <Link href="/student/results">
+                                    <li className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-primary/50"></span>
+                                        View Results & Grades
+                                    </li>
+                                </Link>
+                                <Link href="/student/assignments">
+                                    <li className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-primary/50"></span>
+                                        My Assignments
+                                    </li>
+                                </Link>
+                                <Link href="/student/timetable">
+                                    <li className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-primary/50"></span>
+                                        Class Timetable
+                                    </li>
+                                </Link>
                             </ul>
                         </CardContent>
                     </Card>
@@ -371,10 +407,12 @@ function StudentDashboardContent() {
                                     <span className="w-1.5 h-1.5 rounded-full bg-green-500/50"></span>
                                     Submit Feedback
                                 </li>
-                                <li className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500/50"></span>
-                                    Request Leave
-                                </li>
+                                <Link href="/student/leave">
+                                    <li className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-green-500/50"></span>
+                                        Request Leave
+                                    </li>
+                                </Link>
                                 <li className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
                                     <span className="w-1.5 h-1.5 rounded-full bg-green-500/50"></span>
                                     Help Desk

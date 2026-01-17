@@ -13,19 +13,21 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { ArrowLeft, CheckCircle, Upload } from "lucide-react"
+import { ArrowLeft, CheckCircle, Upload, Eye, EyeOff } from "lucide-react"
 
 export default function AddTeacherPage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = React.useState(false)
+    const [showPassword, setShowPassword] = React.useState(false)
 
-    // Mock Form State
+    // Form State
     const [formData, setFormData] = React.useState({
         firstName: "",
         lastName: "",
         email: "",
+        password: "",
         phone: "",
-        department: "",
+        department: "CS",
         subjects: "",
     })
 
@@ -33,12 +35,45 @@ export default function AddTeacherPage() {
         e.preventDefault()
         setIsLoading(true)
 
-        // Simulate API call
-        setTimeout(() => {
+        const token = localStorage.getItem("token")
+        if (!token) {
+            alert("No authentication token found. Please login again.")
+            router.push("/admin/login")
+            return
+        }
+
+        try {
+            const payload = {
+                full_name: `${formData.firstName} ${formData.lastName}`.trim(),
+                email: formData.email,
+                password: formData.password,
+                phone: formData.phone,
+                department: formData.department,
+                subjects: formData.subjects
+            }
+
+            const res = await fetch('/api/admin/teachers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            })
+
+            if (res.ok) {
+                alert("Teacher added successfully!")
+                router.push("/admin/teachers")
+            } else {
+                const errorData = await res.json()
+                alert(`Error: ${errorData.detail || "Failed to add teacher"}`)
+            }
+        } catch (error) {
+            console.error("Error adding teacher:", error)
+            alert("An unexpected error occurred.")
+        } finally {
             setIsLoading(false)
-            alert("Teacher added successfully!")
-            router.push("/admin/teachers")
-        }, 1000)
+        }
     }
 
     return (
@@ -60,7 +95,7 @@ export default function AddTeacherPage() {
                     <Card className="glass-dark border-primary/20">
                         <CardHeader>
                             <CardTitle>Personal Information</CardTitle>
-                            <CardDescription>Basic details of the teacher.</CardDescription>
+                            <CardDescription>Basic details and credentials for teacher login.</CardDescription>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -95,6 +130,27 @@ export default function AddTeacherPage() {
                                 />
                             </div>
                             <div className="space-y-2">
+                                <Label>Login Password</Label>
+                                <div className="relative">
+                                    <Input
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        required
+                                        className="bg-background/50 border-white/10 pr-10"
+                                        value={formData.password}
+                                        onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                </div>
+                                <p className="text-[10px] text-muted-foreground">This password will be used by the teacher to login.</p>
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
                                 <Label>Phone Number</Label>
                                 <Input
                                     type="tel"
@@ -116,7 +172,10 @@ export default function AddTeacherPage() {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label>Department</Label>
-                                <Select onValueChange={(val) => setFormData({ ...formData, department: val })}>
+                                <Select
+                                    value={formData.department}
+                                    onValueChange={(val) => setFormData({ ...formData, department: val })}
+                                >
                                     <SelectTrigger className="bg-background/50 border-white/10">
                                         <SelectValue placeholder="Select Department" />
                                     </SelectTrigger>
@@ -138,7 +197,7 @@ export default function AddTeacherPage() {
                                     value={formData.subjects}
                                     onChange={e => setFormData({ ...formData, subjects: e.target.value })}
                                 />
-                                <p className="text-xs text-muted-foreground">You can link specific Subject IDs later in Classes & Subjects.</p>
+                                <p className="text-xs text-muted-foreground">Assign subjects that this teacher will manage.</p>
                             </div>
                         </CardContent>
                     </Card>
@@ -177,3 +236,4 @@ export default function AddTeacherPage() {
         </main>
     )
 }
+

@@ -25,16 +25,46 @@ export default function IdCardVerificationPage() {
         setStatus("idle")
     }
 
-    const handleVerify = () => {
+    const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+    const subject = searchParams?.get('sub') || "General"
+    const sessionId = searchParams?.get('session_id')
+
+    const handleVerify = async () => {
+        if (!imgSrc) return
         setStatus("verifying")
-        // Simulate API call
-        setTimeout(() => {
-            setStatus("success")
-            // Redirect back to dashboard after a delay
-            setTimeout(() => {
-                router.push("/student/dashboard?verified=true")
-            }, 2000)
-        }, 2000)
+
+        try {
+            const formData = new FormData()
+            const blob = await (await fetch(imgSrc)).blob()
+            formData.append("file", blob, "id_card.jpg")
+            formData.append("subject", subject)
+            if (sessionId) formData.append("session_id", sessionId)
+
+            const token = localStorage.getItem("token")
+            const response = await fetch("/api/attendance/mark", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+                body: formData
+            })
+
+            const result = await response.json()
+            if (response.ok) {
+                setStatus("success")
+                setTimeout(() => {
+                    router.push(`/student/dashboard?verified=true&session=${sessionId}`)
+                }, 2000)
+            } else {
+                console.error("Verification failed:", result.detail)
+                setStatus("error")
+                alert(result.detail || "Verification failed. Please try again.")
+            }
+        } catch (error) {
+            console.error("Verification error:", error)
+            setStatus("error")
+            alert("An error occurred during verification.")
+        }
     }
 
     const videoConstraints = {

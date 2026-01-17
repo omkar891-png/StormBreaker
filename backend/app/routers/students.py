@@ -7,7 +7,7 @@ from pathlib import Path
 from ..security import get_password_hash
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from .. import crud, models, schemas
 from ..database import get_db
@@ -257,6 +257,16 @@ async def batch_upload_students(
          raise HTTPException(status_code=500, detail=f"Failed to process file: {str(e)}")
 
 @router.get("/", response_model=List[schemas.Student])
-def read_students(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_students(db, skip=skip, limit=limit)
-    return users
+def read_students(
+    dept: Optional[str] = None,
+    year: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.Student)
+    if dept:
+        query = query.filter(models.Student.department == dept)
+    if year:
+        query = query.filter(models.Student.year == year)
+    return query.offset(skip).limit(limit).all()

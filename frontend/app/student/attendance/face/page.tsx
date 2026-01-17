@@ -2,13 +2,25 @@
 
 import * as React from "react"
 import Webcam from "react-webcam"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Camera, CheckCircle2, RotateCcw, AlertCircle } from "lucide-react"
 
 export default function FaceVerificationPage() {
+    return (
+        <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-black text-white">Loading...</div>}>
+            <FaceVerificationContent />
+        </React.Suspense>
+    )
+}
+
+function FaceVerificationContent() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const subject = searchParams.get('subject') || "Unknown Subject"
+    const sessionId = searchParams.get('session_id')
+
     const webcamRef = React.useRef<Webcam>(null)
     const [imgSrc, setImgSrc] = React.useState<string | null>(null)
     const [status, setStatus] = React.useState<"idle" | "verifying" | "success" | "error">("idle")
@@ -40,11 +52,14 @@ export default function FaceVerificationPage() {
 
             const formData = new FormData();
             formData.append("file", blob, "capture.jpg");
-            formData.append("subject", "Data Structures"); // Hardcoded for demo matching dashboard
+            formData.append("subject", subject);
+            if (sessionId) {
+                formData.append("session_id", sessionId);
+            }
 
             const token = localStorage.getItem("token");
 
-            const response = await fetch("http://127.0.0.1:8000/attendance/mark", {
+            const response = await fetch("/api/attendance/mark", {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`

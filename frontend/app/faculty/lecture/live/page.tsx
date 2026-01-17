@@ -18,17 +18,8 @@ import {
     RefreshCw
 } from "lucide-react"
 
-// Mock Students Data
-const MOCK_STUDENTS = [
-    { id: "CS01", name: "Alex Doe", img: "/avatars/01.png", status: "pending" },
-    { id: "CS02", name: "John Smith", img: "/avatars/02.png", status: "pending" },
-    { id: "CS03", name: "Sarah Connor", img: "/avatars/03.png", status: "pending" },
-    { id: "CS04", name: "Mike Ross", img: "/avatars/04.png", status: "pending" },
-    { id: "CS05", name: "Rachel Green", img: "/avatars/05.png", status: "pending" },
-    { id: "CS06", name: "Harvey Specter", img: "/avatars/06.png", status: "pending" },
-    { id: "CS07", name: "Louis Litt", img: "/avatars/07.png", status: "pending" },
-    { id: "CS08", name: "Donna Paulsen", img: "/avatars/08.png", status: "pending" },
-]
+// Students will be fetched or added dynamically
+const INITIAL_STUDENTS: any[] = []
 
 export default function LiveLecturePage() {
     return (
@@ -45,10 +36,58 @@ function LiveLectureContent() {
     // Session Details from URL
     const dept = searchParams.get('dept') || "CS"
     const classYear = searchParams.get('class') || "SY"
-    const div = searchParams.get('div') || "A"
     const subject = searchParams.get('sub') || "Unknown Subject"
+    const sessionId = searchParams.get('session_id')
+    const [students, setStudents] = React.useState<any[]>([])
 
-    const [students, setStudents] = React.useState(MOCK_STUDENTS)
+    const fetchStudents = async () => {
+        if (!sessionId) return
+        const token = localStorage.getItem("token")
+        try {
+            // 1. Fetch ALL students in this class
+            const studentsRes = await fetch(`/api/students/?dept=${dept}&year=${classYear}`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            })
+
+            // 2. Fetch Attendance for this SESSION
+            const attendanceRes = await fetch(`/api/attendance/?session_id=${sessionId}`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            })
+
+            if (studentsRes.ok && attendanceRes.ok) {
+                const allClassStudents = await studentsRes.json()
+                const attendanceLogs = await attendanceRes.json()
+
+                // Create a map of present IDs
+                const presentMap = new Map()
+                attendanceLogs.forEach((log: any) => {
+                    presentMap.set(log.student.roll_number, log)
+                })
+
+                // Merge: If in presentMap -> status 'present', else 'absent'
+                const mergedList = allClassStudents.map((s: any) => {
+                    const record = presentMap.get(s.roll_number)
+                    return {
+                        id: s.roll_number,
+                        name: s.full_name,
+                        img: s.profile_picture || "/avatars/01.png",
+                        status: record ? 'present' : 'absent',
+                        time: record ? new Date(record.timestamp).toLocaleTimeString() : '-'
+                    }
+                })
+
+                setStudents(mergedList)
+            }
+        } catch (error) {
+            console.error("Error fetching students:", error)
+        }
+    }
+
+    React.useEffect(() => {
+        fetchStudents()
+        const interval = setInterval(fetchStudents, 5000)
+        return () => clearInterval(interval)
+    }, [sessionId])
     const [isScanning, setIsScanning] = React.useState(false)
     const [sessionActive, setSessionActive] = React.useState(true)
 
@@ -63,35 +102,17 @@ function LiveLectureContent() {
         setStudents(prev => prev.map(s => s.id === id ? { ...s, status: newStatus } : s))
     }
 
-    // Simulate Face Scan
-    const simulateScan = () => {
-        if (!sessionActive) return
-        setIsScanning(true)
-
-        // Randomly mark 2-3 pending students as present
-        setTimeout(() => {
-            setStudents(prev => {
-                const pending = prev.filter(s => s.status === 'pending')
-                if (pending.length === 0) return prev
-
-                const verified = []
-                const indices = new Set<number>()
-                while (indices.size < Math.min(3, pending.length)) {
-                    indices.add(Math.floor(Math.random() * pending.length))
-                }
-
-                // Create a map of IDs to update
-                const idsToUpdate = new Set(Array.from(indices).map((i: number) => pending[i].id))
-
-                return prev.map(s => idsToUpdate.has(s.id) ? { ...s, status: 'present' } : s)
-            })
-            setIsScanning(false)
-        }, 2000)
-    }
-
-    const endSession = () => {
+    const endSession = async () => {
         const confirmEnd = window.confirm("Are you sure you want to end this session? All pending students will be marked Absent.")
         if (confirmEnd) {
+            const sessionId = searchParams.get('session_id')
+            if (sessionId) {
+                const token = localStorage.getItem("token")
+                await fetch(`/api/sessions/${sessionId}/end`, {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` }
+                })
+            }
             setStudents(prev => prev.map(s => s.status === 'pending' ? { ...s, status: 'absent' } : s))
             setSessionActive(false)
         }
@@ -108,7 +129,7 @@ function LiveLectureContent() {
                         <h1 className="text-2xl font-bold tracking-tight">{subject}</h1>
                     </div>
                     <p className="text-muted-foreground mt-1 text-sm flex items-center gap-2">
-                        <Users className="h-4 w-4" /> {classYear}-{dept} / Div {div}
+                        <Users className="h-4 w-4" /> {classYear}-{dept}
                         <span className="text-white/20">|</span>
                         <Clock className="h-4 w-4" /> Started at {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
@@ -117,9 +138,9 @@ function LiveLectureContent() {
                 <div className="flex items-center gap-3">
                     {sessionActive ? (
                         <>
-                            <Button variant="secondary" className="gap-2" onClick={simulateScan} disabled={isScanning}>
+                            <Button variant="secondary" className="gap-2" disabled={isScanning}>
                                 {isScanning ? <RefreshCw className="h-4 w-4 animate-spin" /> : <ScanFace className="h-4 w-4" />}
-                                {isScanning ? "Scanning..." : "Simulate Face Scan"}
+                                {isScanning ? "Scanning..." : "Start Face Scan"}
                             </Button>
                             <Button variant="destructive" className="gap-2" onClick={endSession}>
                                 <LogOut className="h-4 w-4" /> End Session

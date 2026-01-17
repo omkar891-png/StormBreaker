@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
-from .routers import students, attendance, auth, exams, notifications, reports, admin
+from .routers import students, attendance, auth, exams, notifications, reports, admin, sessions, results, timetable, assignments, submissions, leave
 
 # Create DB tables
 Base.metadata.create_all(bind=engine)
@@ -32,6 +32,12 @@ app.include_router(exams.router)
 app.include_router(notifications.router)
 app.include_router(reports.router)
 app.include_router(admin.router)
+app.include_router(sessions.router)
+app.include_router(results.router)
+app.include_router(timetable.router)
+app.include_router(assignments.router)
+app.include_router(submissions.router)
+app.include_router(leave.router)
 
 @app.get("/")
 def read_root():

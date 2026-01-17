@@ -420,6 +420,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$arrow$2d$left$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowLeft$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/arrow-left.js [app-client] (ecmascript) <export default as ArrowLeft>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2d$big$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-check-big.js [app-client] (ecmascript) <export default as CheckCircle>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/upload.js [app-client] (ecmascript) <export default as Upload>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/eye.js [app-client] (ecmascript) <export default as Eye>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2d$off$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EyeOff$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/eye-off.js [app-client] (ecmascript) <export default as EyeOff>");
 ;
 var _s = __turbopack_context__.k.signature();
 "use client";
@@ -435,24 +437,56 @@ function AddTeacherPage() {
     _s();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     const [isLoading, setIsLoading] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](false);
-    // Mock Form State
+    const [showPassword, setShowPassword] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](false);
+    // Form State
     const [formData, setFormData] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"]({
         firstName: "",
         lastName: "",
         email: "",
+        password: "",
         phone: "",
-        department: "",
+        department: "CS",
         subjects: ""
     });
     const handleSubmit = async (e)=>{
         e.preventDefault();
         setIsLoading(true);
-        // Simulate API call
-        setTimeout(()=>{
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("No authentication token found. Please login again.");
+            router.push("/admin/login");
+            return;
+        }
+        try {
+            const payload = {
+                full_name: `${formData.firstName} ${formData.lastName}`.trim(),
+                email: formData.email,
+                password: formData.password,
+                phone: formData.phone,
+                department: formData.department,
+                subjects: formData.subjects
+            };
+            const res = await fetch('/api/admin/teachers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                alert("Teacher added successfully!");
+                router.push("/admin/teachers");
+            } else {
+                const errorData = await res.json();
+                alert(`Error: ${errorData.detail || "Failed to add teacher"}`);
+            }
+        } catch (error) {
+            console.error("Error adding teacher:", error);
+            alert("An unexpected error occurred.");
+        } finally{
             setIsLoading(false);
-            alert("Teacher added successfully!");
-            router.push("/admin/teachers");
-        }, 1000);
+        }
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
         className: "p-8 space-y-8 animate-fade-in max-w-5xl mx-auto",
@@ -468,12 +502,12 @@ function AddTeacherPage() {
                             className: "h-5 w-5"
                         }, void 0, false, {
                             fileName: "[project]/app/admin/teachers/add/page.tsx",
-                            lineNumber: 48,
+                            lineNumber: 83,
                             columnNumber: 21
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                        lineNumber: 47,
+                        lineNumber: 82,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -483,7 +517,7 @@ function AddTeacherPage() {
                                 children: "Add New Teacher"
                             }, void 0, false, {
                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                lineNumber: 51,
+                                lineNumber: 86,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -491,19 +525,19 @@ function AddTeacherPage() {
                                 children: "Register a new faculty member."
                             }, void 0, false, {
                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                lineNumber: 52,
+                                lineNumber: 87,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                        lineNumber: 50,
+                        lineNumber: 85,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                lineNumber: 46,
+                lineNumber: 81,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -522,20 +556,20 @@ function AddTeacherPage() {
                                                 children: "Personal Information"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                lineNumber: 62,
+                                                lineNumber: 97,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
-                                                children: "Basic details of the teacher."
+                                                children: "Basic details and credentials for teacher login."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                lineNumber: 63,
+                                                lineNumber: 98,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                        lineNumber: 61,
+                                        lineNumber: 96,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -548,7 +582,7 @@ function AddTeacherPage() {
                                                         children: "First Name"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 67,
+                                                        lineNumber: 102,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -562,13 +596,13 @@ function AddTeacherPage() {
                                                             })
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 68,
+                                                        lineNumber: 103,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                lineNumber: 66,
+                                                lineNumber: 101,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -578,7 +612,7 @@ function AddTeacherPage() {
                                                         children: "Last Name"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 77,
+                                                        lineNumber: 112,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -592,13 +626,13 @@ function AddTeacherPage() {
                                                             })
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 78,
+                                                        lineNumber: 113,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                lineNumber: 76,
+                                                lineNumber: 111,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -608,7 +642,7 @@ function AddTeacherPage() {
                                                         children: "Email Address"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 87,
+                                                        lineNumber: 122,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -623,23 +657,93 @@ function AddTeacherPage() {
                                                             })
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 88,
+                                                        lineNumber: 123,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                lineNumber: 86,
+                                                lineNumber: 121,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "space-y-2",
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                                        children: "Login Password"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/admin/teachers/add/page.tsx",
+                                                        lineNumber: 133,
+                                                        columnNumber: 33
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "relative",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                                                type: showPassword ? "text" : "password",
+                                                                placeholder: "••••••••",
+                                                                required: true,
+                                                                className: "bg-background/50 border-white/10 pr-10",
+                                                                value: formData.password,
+                                                                onChange: (e)=>setFormData({
+                                                                        ...formData,
+                                                                        password: e.target.value
+                                                                    })
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/admin/teachers/add/page.tsx",
+                                                                lineNumber: 135,
+                                                                columnNumber: 37
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                type: "button",
+                                                                className: "absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground",
+                                                                onClick: ()=>setShowPassword(!showPassword),
+                                                                children: showPassword ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2d$off$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__EyeOff$3e$__["EyeOff"], {
+                                                                    className: "h-4 w-4"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/admin/teachers/add/page.tsx",
+                                                                    lineNumber: 148,
+                                                                    columnNumber: 57
+                                                                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
+                                                                    className: "h-4 w-4"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/admin/teachers/add/page.tsx",
+                                                                    lineNumber: 148,
+                                                                    columnNumber: 90
+                                                                }, this)
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/admin/teachers/add/page.tsx",
+                                                                lineNumber: 143,
+                                                                columnNumber: 37
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/admin/teachers/add/page.tsx",
+                                                        lineNumber: 134,
+                                                        columnNumber: 33
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-[10px] text-muted-foreground",
+                                                        children: "This password will be used by the teacher to login."
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/admin/teachers/add/page.tsx",
+                                                        lineNumber: 151,
+                                                        columnNumber: 33
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/admin/teachers/add/page.tsx",
+                                                lineNumber: 132,
+                                                columnNumber: 29
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "space-y-2 md:col-span-2",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
                                                         children: "Phone Number"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 98,
+                                                        lineNumber: 154,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -654,25 +758,25 @@ function AddTeacherPage() {
                                                             })
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 99,
+                                                        lineNumber: 155,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                lineNumber: 97,
+                                                lineNumber: 153,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                        lineNumber: 65,
+                                        lineNumber: 100,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                lineNumber: 60,
+                                lineNumber: 95,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -684,20 +788,20 @@ function AddTeacherPage() {
                                                 children: "Academic Details"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                lineNumber: 113,
+                                                lineNumber: 169,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                 children: "Department and Subject Assignments."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                lineNumber: 114,
+                                                lineNumber: 170,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                        lineNumber: 112,
+                                        lineNumber: 168,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -710,10 +814,11 @@ function AddTeacherPage() {
                                                         children: "Department"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 118,
+                                                        lineNumber: 174,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
+                                                        value: formData.department,
                                                         onValueChange: (val)=>setFormData({
                                                                 ...formData,
                                                                 department: val
@@ -725,12 +830,12 @@ function AddTeacherPage() {
                                                                     placeholder: "Select Department"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                                    lineNumber: 121,
+                                                                    lineNumber: 180,
                                                                     columnNumber: 41
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                                lineNumber: 120,
+                                                                lineNumber: 179,
                                                                 columnNumber: 37
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -740,7 +845,7 @@ function AddTeacherPage() {
                                                                         children: "Computer Science"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                                        lineNumber: 124,
+                                                                        lineNumber: 183,
                                                                         columnNumber: 41
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -748,7 +853,7 @@ function AddTeacherPage() {
                                                                         children: "Information Tech"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                                        lineNumber: 125,
+                                                                        lineNumber: 184,
                                                                         columnNumber: 41
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -756,7 +861,7 @@ function AddTeacherPage() {
                                                                         children: "Data Science"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                                        lineNumber: 126,
+                                                                        lineNumber: 185,
                                                                         columnNumber: 41
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -764,7 +869,7 @@ function AddTeacherPage() {
                                                                         children: "AI & ML"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                                        lineNumber: 127,
+                                                                        lineNumber: 186,
                                                                         columnNumber: 41
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -772,25 +877,25 @@ function AddTeacherPage() {
                                                                         children: "Mechanical"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                                        lineNumber: 128,
+                                                                        lineNumber: 187,
                                                                         columnNumber: 41
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                                lineNumber: 123,
+                                                                lineNumber: 182,
                                                                 columnNumber: 37
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 119,
+                                                        lineNumber: 175,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                lineNumber: 117,
+                                                lineNumber: 173,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -800,7 +905,7 @@ function AddTeacherPage() {
                                                         children: "Assigned Subjects (Comma separated)"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 134,
+                                                        lineNumber: 193,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -813,39 +918,39 @@ function AddTeacherPage() {
                                                             })
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 135,
+                                                        lineNumber: 194,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "text-xs text-muted-foreground",
-                                                        children: "You can link specific Subject IDs later in Classes & Subjects."
+                                                        children: "Assign subjects that this teacher will manage."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 141,
+                                                        lineNumber: 200,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                lineNumber: 133,
+                                                lineNumber: 192,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                        lineNumber: 116,
+                                        lineNumber: 172,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                lineNumber: 111,
+                                lineNumber: 167,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                        lineNumber: 59,
+                        lineNumber: 94,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -859,12 +964,12 @@ function AddTeacherPage() {
                                             children: "Profile Photo"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                            lineNumber: 151,
+                                            lineNumber: 210,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                        lineNumber: 150,
+                                        lineNumber: 209,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -877,7 +982,7 @@ function AddTeacherPage() {
                                                         className: "h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 155,
+                                                        lineNumber: 214,
                                                         columnNumber: 33
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -886,13 +991,13 @@ function AddTeacherPage() {
                                                         accept: "image/*"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 156,
+                                                        lineNumber: 215,
                                                         columnNumber: 33
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                lineNumber: 154,
+                                                lineNumber: 213,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -901,26 +1006,26 @@ function AddTeacherPage() {
                                                     "Click to upload or drag and drop",
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                        lineNumber: 158,
+                                                        lineNumber: 217,
                                                         columnNumber: 118
                                                     }, this),
                                                     "SVG, PNG, JPG or GIF"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                lineNumber: 158,
+                                                lineNumber: 217,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                        lineNumber: 153,
+                                        lineNumber: 212,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                lineNumber: 149,
+                                lineNumber: 208,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -937,7 +1042,7 @@ function AddTeacherPage() {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                                    lineNumber: 166,
+                                                    lineNumber: 225,
                                                     columnNumber: 37
                                                 }, this),
                                                 " Save Teacher"
@@ -945,7 +1050,7 @@ function AddTeacherPage() {
                                         }, void 0, true)
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                        lineNumber: 163,
+                                        lineNumber: 222,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -956,35 +1061,35 @@ function AddTeacherPage() {
                                         children: "Cancel"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                        lineNumber: 170,
+                                        lineNumber: 229,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                                lineNumber: 162,
+                                lineNumber: 221,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/admin/teachers/add/page.tsx",
-                        lineNumber: 148,
+                        lineNumber: 207,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/admin/teachers/add/page.tsx",
-                lineNumber: 56,
+                lineNumber: 91,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/admin/teachers/add/page.tsx",
-        lineNumber: 45,
+        lineNumber: 80,
         columnNumber: 9
     }, this);
 }
-_s(AddTeacherPage, "0mqOCC3xIhCRjaU1jMzg+PjB4ZI=", false, function() {
+_s(AddTeacherPage, "Z8TyjmwGDXfDdQ6JZmrjJPmIXlk=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"]
     ];

@@ -1,15 +1,60 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "../../../components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
+import { Card, CardContent, CardHeader } from "../../../components/ui/card"
 import { Input } from "../../../components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
-import { Search, Plus, Filter, MoreHorizontal, FileDown } from "lucide-react"
+import { Search, Plus, Filter, MoreHorizontal, FileDown, RefreshCw } from "lucide-react"
 
+interface Student {
+    id: number
+    full_name: string
+    roll_number: string
+    department: string
+    year: string
+    profile_picture: string | null
+}
 
 export default function StudentsListPage() {
+    const [students, setStudents] = useState<Student[]>([])
+    const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState("")
+
+    const fetchStudents = async () => {
+        setLoading(true)
+        const token = localStorage.getItem("token")
+        if (!token) return
+
+        try {
+            const res = await fetch('/api/students/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            if (res.ok) {
+                const data = await res.json()
+                setStudents(data)
+            }
+        } catch (error) {
+            console.error("Error fetching students:", error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchStudents()
+    }, [])
+
+    const filteredStudents = students.filter(s =>
+        s.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.roll_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.department.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
     return (
         <main className="p-8 space-y-8 animate-fade-in">
             <div className="flex items-center justify-between">
@@ -17,11 +62,16 @@ export default function StudentsListPage() {
                     <h1 className="text-3xl font-bold tracking-tight">Students Directory</h1>
                     <p className="text-muted-foreground">Manage student enrollments and records.</p>
                 </div>
-                <Button className="glow-primary-hover gap-2" asChild>
-                    <Link href="/admin/students/add">
-                        <Plus className="h-4 w-4" /> Add New Students
-                    </Link>
-                </Button>
+                <div className="flex gap-3">
+                    <Button variant="outline" size="icon" onClick={fetchStudents} disabled={loading} className="rounded-full">
+                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    </Button>
+                    <Button className="glow-primary-hover gap-2" asChild>
+                        <Link href="/admin/students/add">
+                            <Plus className="h-4 w-4" /> Add New Students
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <Card className="glass-dark border-primary/20">
@@ -31,17 +81,14 @@ export default function StudentsListPage() {
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                                 type="search"
-                                placeholder="Search by name, ID or department..."
+                                placeholder="Search by name, roll number or department..."
                                 className="pl-9 bg-background/50 border-white/10 focus:border-primary/50"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
                         <Button variant="outline" size="icon" className="border-white/10 text-muted-foreground hover:text-foreground">
                             <Filter className="h-4 w-4" />
-                        </Button>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" className="gap-2 border-white/10 text-xs">
-                            <FileDown className="h-4 w-4" /> Export CSV
                         </Button>
                     </div>
                 </CardHeader>
@@ -58,22 +105,29 @@ export default function StudentsListPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {[
-                                { name: "Alex Doe", id: "STU-2024-001", dept: "Computer Science", year: "2nd Year", img: "/avatars/01.png" },
-                                { name: "John Smith", id: "STU-2024-002", dept: "Information Tech", year: "1st Year", img: "/avatars/02.png" },
-                                { name: "Sarah Connor", id: "STU-2024-005", dept: "AI & ML", year: "3rd Year", img: "/avatars/03.png" },
-                                { name: "Mike Ross", id: "STU-2024-012", dept: "Legal Tech", year: "Final Year", img: "AD" },
-                            ].map((student, i) => (
-                                <TableRow key={i} className="border-white/10 hover:bg-white/5 transition-colors group">
+                            {loading ? (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                                        Loading students...
+                                    </TableCell>
+                                </TableRow>
+                            ) : filteredStudents.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                                        No students found.
+                                    </TableCell>
+                                </TableRow>
+                            ) : filteredStudents.map((student) => (
+                                <TableRow key={student.id} className="border-white/10 hover:bg-white/5 transition-colors group">
                                     <TableCell>
                                         <Avatar className="h-9 w-9 border border-white/10">
-                                            <AvatarImage src={student.img} />
-                                            <AvatarFallback className="text-xs">{student.img.length <= 2 ? student.img : "ST"}</AvatarFallback>
+                                            <AvatarImage src={`http://localhost:8000${student.profile_picture}`} />
+                                            <AvatarFallback className="text-xs">{student.full_name.charAt(0)}</AvatarFallback>
                                         </Avatar>
                                     </TableCell>
-                                    <TableCell className="font-medium text-foreground">{student.name}</TableCell>
-                                    <TableCell className="font-mono text-xs text-muted-foreground">{student.id}</TableCell>
-                                    <TableCell>{student.dept}</TableCell>
+                                    <TableCell className="font-medium text-foreground">{student.full_name}</TableCell>
+                                    <TableCell className="font-mono text-xs text-muted-foreground">{student.roll_number}</TableCell>
+                                    <TableCell>{student.department}</TableCell>
                                     <TableCell>
                                         <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                                             {student.year}
@@ -93,3 +147,4 @@ export default function StudentsListPage() {
         </main>
     )
 }
+

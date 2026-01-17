@@ -8,9 +8,128 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import { Badge } from "../../../components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table"
-import { Plus, BookOpen, Layers, Users, ArrowRight } from "lucide-react"
+import { Plus, BookOpen, Layers, Users, ArrowRight, RefreshCw, Loader2 } from "lucide-react"
+
+interface Subject {
+    id: number
+    name: string
+    code: string
+    department: string
+    type: string
+    credits: number
+}
+
+interface ClassGroup {
+    id: number
+    name: string
+    department: string
+    year: string
+    division: string
+}
 
 export default function AcademicPage() {
+    const [subjects, setSubjects] = React.useState<Subject[]>([])
+    const [classes, setClasses] = React.useState<ClassGroup[]>([])
+    const [loading, setLoading] = React.useState(true)
+    const [creating, setCreating] = React.useState(false)
+
+    // Form States
+    const [newClass, setNewClass] = React.useState({
+        department: "CS",
+        year: "SY",
+        division: ""
+    })
+
+    const [newSubject, setNewSubject] = React.useState({
+        name: "",
+        code: "",
+        department: "CS",
+        type: "Core",
+        credits: 4
+    })
+
+    const fetchData = async () => {
+        setLoading(true)
+        const token = localStorage.getItem("token")
+        if (!token) return
+
+        try {
+            const headers = { 'Authorization': `Bearer ${token}` }
+            const [subRes, clsRes] = await Promise.all([
+                fetch('/api/admin/subjects', { headers }),
+                fetch('/api/admin/classes', { headers })
+            ])
+
+            if (subRes.ok) setSubjects(await subRes.json())
+            if (clsRes.ok) setClasses(await clsRes.json())
+        } catch (error) {
+            console.error("Error fetching academic data:", error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    React.useEffect(() => {
+        fetchData()
+    }, [])
+
+    const handleCreateClass = async () => {
+        const token = localStorage.getItem("token")
+        if (!token) return
+        setCreating(true)
+
+        try {
+            const res = await fetch('/api/admin/classes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    name: `${newClass.year}-${newClass.department}-${newClass.division}`,
+                    department: newClass.department,
+                    year: newClass.year,
+                    division: newClass.division
+                })
+            })
+
+            if (res.ok) {
+                fetchData()
+                setNewClass({ ...newClass, division: "" })
+            }
+        } catch (error) {
+            console.error("Error creating class:", error)
+        } finally {
+            setCreating(false)
+        }
+    }
+
+    const handleCreateSubject = async () => {
+        const token = localStorage.getItem("token")
+        if (!token) return
+        setCreating(true)
+
+        try {
+            const res = await fetch('/api/admin/subjects', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(newSubject)
+            })
+
+            if (res.ok) {
+                fetchData()
+                setNewSubject({ name: "", code: "", department: "CS", type: "Core", credits: 4 })
+            }
+        } catch (error) {
+            console.error("Error creating subject:", error)
+        } finally {
+            setCreating(false)
+        }
+    }
+
     return (
         <main className="p-8 space-y-8 animate-fade-in">
             <div className="flex items-center justify-between">
@@ -18,6 +137,9 @@ export default function AcademicPage() {
                     <h1 className="text-3xl font-bold tracking-tight">Academic Structure</h1>
                     <p className="text-muted-foreground">Manage classes, subjects, and curriculum hierarchy.</p>
                 </div>
+                <Button variant="outline" size="icon" onClick={fetchData} disabled={loading} className="rounded-full">
+                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                </Button>
             </div>
 
             <Tabs defaultValue="classes" className="space-y-6">
@@ -28,15 +150,11 @@ export default function AcademicPage() {
                     <TabsTrigger value="subjects" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                         <BookOpen className="h-4 w-4" /> Subjects Library
                     </TabsTrigger>
-                    <TabsTrigger value="structure" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                        <Layers className="h-4 w-4" /> Curriculum Mapping
-                    </TabsTrigger>
                 </TabsList>
 
                 {/* CLASSES TAB */}
                 <TabsContent value="classes" className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Create Class Form */}
                         <Card className="glass-dark border-primary/20 h-fit">
                             <CardHeader>
                                 <CardTitle>Create New Class</CardTitle>
@@ -45,17 +163,18 @@ export default function AcademicPage() {
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <span className="text-xs font-medium">Department</span>
-                                    <Select>
+                                    <Select value={newClass.department} onValueChange={(v) => setNewClass({ ...newClass, department: v })}>
                                         <SelectTrigger className="bg-background/50 border-white/10"><SelectValue placeholder="Select Dept" /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="CS">Computer Science</SelectItem>
                                             <SelectItem value="IT">IT</SelectItem>
+                                            <SelectItem value="ME">Mechanical Engineering</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
                                     <span className="text-xs font-medium">Year</span>
-                                    <Select>
+                                    <Select value={newClass.year} onValueChange={(v) => setNewClass({ ...newClass, year: v })}>
                                         <SelectTrigger className="bg-background/50 border-white/10"><SelectValue placeholder="Select Year" /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="FY">First Year</SelectItem>
@@ -67,13 +186,19 @@ export default function AcademicPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <span className="text-xs font-medium">Division</span>
-                                    <Input placeholder="e.g. A, B, C" className="bg-background/50 border-white/10" />
+                                    <Input
+                                        placeholder="e.g. A, B, C"
+                                        className="bg-background/50 border-white/10"
+                                        value={newClass.division}
+                                        onChange={(e) => setNewClass({ ...newClass, division: e.target.value })}
+                                    />
                                 </div>
-                                <Button className="w-full glow-primary-hover">Create Class</Button>
+                                <Button className="w-full glow-primary-hover" onClick={handleCreateClass} disabled={creating}>
+                                    {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create Class"}
+                                </Button>
                             </CardContent>
                         </Card>
 
-                        {/* Class List */}
                         <Card className="glass-dark border-primary/20 md:col-span-2">
                             <CardHeader>
                                 <CardTitle>Existing Classes</CardTitle>
@@ -84,22 +209,20 @@ export default function AcademicPage() {
                                         <TableRow className="border-white/10 hover:bg-white/5">
                                             <TableHead>Class Name</TableHead>
                                             <TableHead>Department</TableHead>
-                                            <TableHead>Students</TableHead>
-                                            <TableHead>Class Teacher</TableHead>
+                                            <TableHead>Year</TableHead>
                                             <TableHead className="text-right">Action</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {[
-                                            { name: "SY-CS-A", dept: "Comp. Sci", students: 64, teacher: "Prof. Alan" },
-                                            { name: "SY-CS-B", dept: "Comp. Sci", students: 62, teacher: "Prof. Smith" },
-                                            { name: "TY-IT-A", dept: "Info Tech", students: 58, teacher: "Prof. Grace" },
-                                        ].map((cls, i) => (
-                                            <TableRow key={i} className="border-white/10 hover:bg-white/5 transition-colors">
+                                        {loading ? (
+                                            <TableRow><TableCell colSpan={4} className="text-center py-4">Loading...</TableCell></TableRow>
+                                        ) : classes.length === 0 ? (
+                                            <TableRow><TableCell colSpan={4} className="text-center py-4 text-muted-foreground">No classes found.</TableCell></TableRow>
+                                        ) : classes.map((cls) => (
+                                            <TableRow key={cls.id} className="border-white/10 hover:bg-white/5 transition-colors">
                                                 <TableCell className="font-bold">{cls.name}</TableCell>
-                                                <TableCell>{cls.dept}</TableCell>
-                                                <TableCell>{cls.students}</TableCell>
-                                                <TableCell className="text-muted-foreground text-xs">{cls.teacher}</TableCell>
+                                                <TableCell>{cls.department}</TableCell>
+                                                <TableCell>{cls.year}</TableCell>
                                                 <TableCell className="text-right">
                                                     <Button variant="ghost" size="sm" className="h-8">Manage</Button>
                                                 </TableCell>
@@ -114,83 +237,60 @@ export default function AcademicPage() {
 
                 {/* SUBJECTS TAB */}
                 <TabsContent value="subjects" className="space-y-6">
-                    <div className="flex justify-between items-center bg-white/5 p-4 rounded-lg border border-white/10">
-                        <div className="flex gap-4 items-center">
-                            <Input placeholder="Search subjects..." className="w-[300px] bg-background/50 border-white/10" />
-                            <Select>
-                                <SelectTrigger className="w-[180px] bg-background/50 border-white/10">
-                                    <SelectValue placeholder="All Departments" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Departments</SelectItem>
-                                    <SelectItem value="cs">Computer Science</SelectItem>
-                                </SelectContent>
-                            </Select>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <Card className="glass-dark border-primary/20 h-fit">
+                            <CardHeader>
+                                <CardTitle>Add Subject</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <span className="text-xs font-medium">Name</span>
+                                    <Input value={newSubject.name} onChange={e => setNewSubject({ ...newSubject, name: e.target.value })} placeholder="e.g. Data Structures" className="bg-background/50 border-white/10" />
+                                </div>
+                                <div className="space-y-2">
+                                    <span className="text-xs font-medium">Code</span>
+                                    <Input value={newSubject.code} onChange={e => setNewSubject({ ...newSubject, code: e.target.value })} placeholder="e.g. CS201" className="bg-background/50 border-white/10" />
+                                </div>
+                                <div className="space-y-2">
+                                    <span className="text-xs font-medium">Type</span>
+                                    <Select value={newSubject.type} onValueChange={v => setNewSubject({ ...newSubject, type: v })}>
+                                        <SelectTrigger className="bg-background/50 border-white/10"><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Core">Core</SelectItem>
+                                            <SelectItem value="Theory">Theory</SelectItem>
+                                            <SelectItem value="Lab">Lab</SelectItem>
+                                            <SelectItem value="Elective">Elective</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <Button className="w-full glow-primary-hover" onClick={handleCreateSubject} disabled={creating}>
+                                    {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add Subject"}
+                                </Button>
+                            </CardContent>
+                        </Card>
+
+                        <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {loading ? (
+                                <div className="col-span-full text-center py-10">Loading subjects...</div>
+                            ) : subjects.length === 0 ? (
+                                <div className="col-span-full text-center py-10 text-muted-foreground">No subjects found.</div>
+                            ) : subjects.map((sub) => (
+                                <Card key={sub.id} className="glass-dark border-primary/20 hover:border-primary/50 transition-colors cursor-pointer group">
+                                    <CardContent className="p-6">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">{sub.code}</Badge>
+                                            <Badge variant="secondary" className="bg-white/10">{sub.type}</Badge>
+                                        </div>
+                                        <h3 className="text-lg font-bold mb-1 group-hover:text-primary transition-colors">{sub.name}</h3>
+                                        <p className="text-sm text-muted-foreground">{sub.credits} Credits • {sub.department}</p>
+                                    </CardContent>
+                                </Card>
+                            ))}
                         </div>
-                        <Button className="glow-primary-hover gap-2">
-                            <Plus className="h-4 w-4" /> Add Subject
-                        </Button>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {[
-                            { name: "Data Structures", code: "CS-201", type: "Core", credits: 4 },
-                            { name: "Database Management", code: "CS-202", type: "Core", credits: 4 },
-                            { name: "Software Engineering", code: "CS-203", type: "Theory", credits: 3 },
-                            { name: "Computer Networks", code: "IT-301", type: "Core", credits: 4 },
-                            { name: "Machine Learning", code: "CS-401", type: "Elective", credits: 3 },
-                        ].map((sub, i) => (
-                            <Card key={i} className="glass-dark border-primary/20 hover:border-primary/50 transition-colors cursor-pointer group">
-                                <CardContent className="p-6">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">{sub.code}</Badge>
-                                        <Badge variant="secondary" className="bg-white/10">{sub.type}</Badge>
-                                    </div>
-                                    <h3 className="text-lg font-bold mb-1 group-hover:text-primary transition-colors">{sub.name}</h3>
-                                    <p className="text-sm text-muted-foreground">{sub.credits} Credits</p>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-                </TabsContent>
-
-                {/* STRUCTURE TAB */}
-                <TabsContent value="structure" className="space-y-6">
-                    <Card className="glass-dark border-primary/20">
-                        <CardHeader>
-                            <CardTitle>Class-Subject Mapping</CardTitle>
-                            <CardDescription>Assign subjects and teachers to classes.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {[
-                                    { class: "SY-CS-A", subjects: ["Data Structures (Prof. Alan)", "DBMS (Prof. Smith)", "Maths (Prof. Nash)"] },
-                                    { class: "SY-CS-B", subjects: ["Data Structures (Prof. Alan)", "DBMS (Prof. Taylor)", "Maths (Prof. Nash)"] },
-                                ].map((mapping, i) => (
-                                    <div key={i} className="p-4 rounded-lg bg-white/5 border border-white/10">
-                                        <div className="flex items-center gap-4 mb-3">
-                                            <div className="bg-primary/20 p-2 rounded text-primary font-bold">{mapping.class}</div>
-                                            <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                                            <div className="text-sm text-muted-foreground">3 Subjects Assigned</div>
-                                            <Button variant="ghost" size="sm" className="ml-auto text-xs">Edit Mapping</Button>
-                                        </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            {mapping.subjects.map((sub, j) => (
-                                                <Badge key={j} variant="outline" className="border-white/10 bg-black/20 text-muted-foreground py-1.5">
-                                                    {sub}
-                                                </Badge>
-                                            ))}
-                                            <button className="text-xs flex items-center gap-1 px-3 py-1 rounded-full border border-dashed border-white/20 hover:bg-white/5 text-muted-foreground transition-colors">
-                                                <Plus className="h-3 w-3" /> Add
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
                 </TabsContent>
             </Tabs>
         </main>
     )
 }
+

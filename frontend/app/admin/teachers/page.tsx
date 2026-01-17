@@ -1,14 +1,62 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent, CardHeader } from "../../../components/ui/card"
 import { Input } from "../../../components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
-import { Search, Plus, Filter, MoreHorizontal, FileDown, Mail, Phone } from "lucide-react"
+import { Search, Plus, Filter, MoreHorizontal, Mail, Phone, RefreshCw } from "lucide-react"
+
+interface Teacher {
+    id: number
+    full_name: string
+    department: string
+    phone: string
+    subjects: string
+    user?: {
+        email: string
+    }
+}
 
 export default function TeachersListPage() {
+    const [teachers, setTeachers] = useState<Teacher[]>([])
+    const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState("")
+
+    const fetchTeachers = async () => {
+        setLoading(true)
+        const token = localStorage.getItem("token")
+        if (!token) return
+
+        try {
+            const res = await fetch('/api/admin/teachers', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            if (res.ok) {
+                const data = await res.json()
+                setTeachers(data)
+            }
+        } catch (error) {
+            console.error("Error fetching teachers:", error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchTeachers()
+    }, [])
+
+    const filteredTeachers = teachers.filter(t =>
+        t.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.user?.email.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
     return (
         <main className="p-8 space-y-8 animate-fade-in">
             <div className="flex items-center justify-between">
@@ -16,11 +64,16 @@ export default function TeachersListPage() {
                     <h1 className="text-3xl font-bold tracking-tight">Teachers Directory</h1>
                     <p className="text-muted-foreground">Manage faculty members and assignments.</p>
                 </div>
-                <Button className="glow-primary-hover gap-2" asChild>
-                    <Link href="/admin/teachers/add">
-                        <Plus className="h-4 w-4" /> Add New Teacher
-                    </Link>
-                </Button>
+                <div className="flex gap-3">
+                    <Button variant="outline" size="icon" onClick={fetchTeachers} disabled={loading} className="rounded-full">
+                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    </Button>
+                    <Button className="glow-primary-hover gap-2" asChild>
+                        <Link href="/admin/teachers/add">
+                            <Plus className="h-4 w-4" /> Add New Teacher
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <Card className="glass-dark border-primary/20">
@@ -30,8 +83,10 @@ export default function TeachersListPage() {
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                                 type="search"
-                                placeholder="Search by name, ID or department..."
+                                placeholder="Search by name, email or department..."
                                 className="pl-9 bg-background/50 border-white/10 focus:border-primary/50"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
                         <Button variant="outline" size="icon" className="border-white/10 text-muted-foreground hover:text-foreground">
@@ -53,75 +108,52 @@ export default function TeachersListPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {[
-                                {
-                                    name: "Prof. Alan Turing",
-                                    id: "FAC-001",
-                                    dept: "Computer Science",
-                                    email: "alan.t@univ.edu",
-                                    phone: "+1 234 567 890",
-                                    subjects: ["Data Structures", "Algorithms"],
-                                    status: "Active",
-                                    img: "/avatars/t1.png"
-                                },
-                                {
-                                    name: "Dr. Grace Hopper",
-                                    id: "FAC-002",
-                                    dept: "Information Tech",
-                                    email: "grace.h@univ.edu",
-                                    phone: "+1 987 654 321",
-                                    subjects: ["Compiler Design"],
-                                    status: "Active",
-                                    img: "/avatars/t2.png"
-                                },
-                                {
-                                    name: "Prof. Richard Feynman",
-                                    id: "FAC-003",
-                                    dept: "Physics",
-                                    email: "richard.f@univ.edu",
-                                    phone: "+1 555 123 456",
-                                    subjects: ["Quantum Mechanics", "Physics I"],
-                                    status: "On Leave",
-                                    img: "/avatars/t3.png"
-                                },
-                            ].map((teacher, i) => (
-                                <TableRow key={i} className="border-white/10 hover:bg-white/5 transition-colors group">
+                            {loading ? (
+                                <TableRow>
+                                    <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                                        Loading teachers...
+                                    </TableCell>
+                                </TableRow>
+                            ) : filteredTeachers.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                                        No teachers found.
+                                    </TableCell>
+                                </TableRow>
+                            ) : filteredTeachers.map((teacher) => (
+                                <TableRow key={teacher.id} className="border-white/10 hover:bg-white/5 transition-colors group">
                                     <TableCell>
                                         <Avatar className="h-9 w-9 border border-white/10">
-                                            <AvatarImage src={teacher.img} />
-                                            <AvatarFallback className="text-xs">T</AvatarFallback>
+                                            <AvatarFallback className="text-xs">{teacher.full_name.charAt(0)}</AvatarFallback>
                                         </Avatar>
                                     </TableCell>
                                     <TableCell>
-                                        <div className="font-medium text-foreground">{teacher.name}</div>
-                                        <div className="font-mono text-xs text-muted-foreground">{teacher.id}</div>
+                                        <div className="font-medium text-foreground">{teacher.full_name}</div>
+                                        <div className="font-mono text-xs text-muted-foreground">ID: {teacher.id}</div>
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex flex-col gap-1 text-xs text-muted-foreground">
                                             <div className="flex items-center gap-1">
-                                                <Mail className="h-3 w-3" /> {teacher.email}
+                                                <Mail className="h-3 w-3" /> {teacher.user?.email || "N/A"}
                                             </div>
                                             <div className="flex items-center gap-1">
                                                 <Phone className="h-3 w-3" /> {teacher.phone}
                                             </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell>{teacher.dept}</TableCell>
+                                    <TableCell>{teacher.department}</TableCell>
                                     <TableCell>
                                         <div className="flex flex-wrap gap-1">
-                                            {teacher.subjects.map((sub, j) => (
+                                            {teacher.subjects ? teacher.subjects.split(',').map((sub, j) => (
                                                 <span key={j} className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                                                    {sub}
+                                                    {sub.trim()}
                                                 </span>
-                                            ))}
+                                            )) : <span className="text-xs text-muted-foreground">None</span>}
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${teacher.status === 'Active'
-                                            ? "bg-green-500/10 text-green-500 ring-1 ring-inset ring-green-500/20"
-                                            : "bg-yellow-500/10 text-yellow-500 ring-1 ring-inset ring-yellow-500/20"
-                                            }`}>
-                                            {teacher.status}
+                                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-green-500/10 text-green-500 ring-1 ring-inset ring-green-500/20">
+                                            Active
                                         </span>
                                     </TableCell>
                                     <TableCell className="text-right">
@@ -138,3 +170,4 @@ export default function TeachersListPage() {
         </main>
     )
 }
+
